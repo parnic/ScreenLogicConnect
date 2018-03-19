@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreenLogicConnect", "ScreenLogicConnect.csproj", "{4D0DF7CB-62C0-4D69-84A0-542DD36FD8EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{6AA631DA-FAC8-46DA-A1F1-4E828D044B85}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4D0DF7CB-62C0-4D69-84A0-542DD36FD8EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D0DF7CB-62C0-4D69-84A0-542DD36FD8EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D0DF7CB-62C0-4D69-84A0-542DD36FD8EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D0DF7CB-62C0-4D69-84A0-542DD36FD8EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AA631DA-FAC8-46DA-A1F1-4E828D044B85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AA631DA-FAC8-46DA-A1F1-4E828D044B85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AA631DA-FAC8-46DA-A1F1-4E828D044B85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AA631DA-FAC8-46DA-A1F1-4E828D044B85}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3EDFF56B-9E90-4328-9B8A-6B4B54C683C6}
+	EndGlobalSection
+EndGlobal
