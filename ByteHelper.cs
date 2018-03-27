@@ -54,9 +54,9 @@ namespace ScreenLogicConnect
             return (short)((data[startIndex + 1] & 255) + ((short)(((short)((data[startIndex + 0] & 255) + 0)) << 8)));
         }
 
-        public static sbyte getUnsignedByteFromByteArray(sbyte[] data, int startIndex)
+        public static byte getUnsignedByteFromByteArray(sbyte[] data, int startIndex)
         {
-            return (sbyte)(data[startIndex] & 255);
+            return (byte)(data[startIndex] & 255);
         }
 
         public static sbyte getHighByte(short v)

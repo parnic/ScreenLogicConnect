@@ -45,8 +45,8 @@ namespace ScreenLogicConnect.Messages
             idx = ((startIndex + bufferLength) + alignToNext4Boundary(bufferLength));
             return result;
         }
-/*
-        public static int extractColor(sbyte[] data, ref int idx)
+
+        public static RgbColor extractColor(sbyte[] data, ref int idx)
         {
             int startIndex = idx;
             int r = ByteHelper.getIntFromByteArrayLittleEndian(data, startIndex);
@@ -55,9 +55,9 @@ namespace ScreenLogicConnect.Messages
             startIndex += 4;
             int b = ByteHelper.getIntFromByteArrayLittleEndian(data, startIndex);
             idx = startIndex + 4;
-            return Color.rgb(r, g, b);
+            return new RgbColor((byte)(r & 0xff), (byte)(g & 0xff), (byte)(b & 0xff));
         }
-*/
+
         private static int alignToNext4Boundary(int val)
         {
             int sub = val % 4;

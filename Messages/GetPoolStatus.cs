@@ -1,16 +1,18 @@
-﻿namespace ScreenLogicConnect.Messages
+﻿using System.Linq;
+
+namespace ScreenLogicConnect.Messages
 {
     public class GetPoolStatus : HLMessage
     {
-        //private CircuitUpdateDataStructure[] circuitArray;
+        private CircuitUpdateDataStructure[] circuitArray;
         private int m_AirTemp;
         private int m_Alarms;
         private int m_BodiesCount;
         private int m_CircuitCount;
-        private sbyte m_CleanerDelay;
+        private byte m_CleanerDelay;
         private int[] m_CoolSetPoint;
         private int[] m_CurrentTemp;
-        private sbyte m_FreezeMode;
+        private byte m_FreezeMode;
         private int[] m_HeatMode;
         private int[] m_HeatStatus;
         private int m_ORP;
@@ -18,13 +20,13 @@
         private int m_Ok;
         private int m_PH;
         private int m_PHTank;
-        private sbyte m_Padding;
-        private sbyte m_PoolDelay;
-        private sbyte m_Remotes;
+        private byte m_Padding;
+        private byte m_PoolDelay;
+        private byte m_Remotes;
         private int m_SaltPPM;
         private int m_Saturation;
         private int[] m_SetPoint;
-        private sbyte m_SpaDelay;
+        private byte m_SpaDelay;
 
         public static GetPoolStatus QUERY(short senderID)
         {
@@ -108,21 +110,21 @@
             }
             int m_CircuitCount = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
             this.startIndex += 4;
-            //this.circuitArray = new CircuitUpdateDataStructure[m_CircuitCount];
+            this.circuitArray = new CircuitUpdateDataStructure[m_CircuitCount];
             for (i = 0; i < m_CircuitCount; i++)
             {
-                //this.circuitArray[i] = new CircuitUpdateDataStructure();
-                //this.circuitArray[i].id = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
+                this.circuitArray[i] = new CircuitUpdateDataStructure();
+                this.circuitArray[i].id = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
                 this.startIndex += 4;
-                //this.circuitArray[i].state = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
+                this.circuitArray[i].state = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
                 this.startIndex += 4;
-                //this.circuitArray[i].colorSet = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
+                this.circuitArray[i].colorSet = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
                 this.startIndex++;
-                //this.circuitArray[i].colorPos = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
+                this.circuitArray[i].colorPos = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
                 this.startIndex++;
-                //this.circuitArray[i].colorStagger = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
+                this.circuitArray[i].colorStagger = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
                 this.startIndex++;
-                //this.circuitArray[i].delay = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
+                this.circuitArray[i].delay = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
                 this.startIndex++;
             }
             this.m_PH = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
@@ -146,32 +148,32 @@
             return this.m_Ok;
         }
 
-        public sbyte getM_FreezeMode()
+        public byte getM_FreezeMode()
         {
             return this.m_FreezeMode;
         }
 
-        public sbyte getM_Remotes()
+        public byte getM_Remotes()
         {
             return this.m_Remotes;
         }
 
-        public sbyte getM_PoolDelay()
+        public byte getM_PoolDelay()
         {
             return this.m_PoolDelay;
         }
 
-        public sbyte getM_SpaDelay()
+        public byte getM_SpaDelay()
         {
             return this.m_SpaDelay;
         }
 
-        public sbyte getM_CleanerDelay()
+        public byte getM_CleanerDelay()
         {
             return this.m_CleanerDelay;
         }
 
-        public sbyte getM_Padding()
+        public byte getM_Padding()
         {
             return this.m_Padding;
         }
@@ -245,12 +247,12 @@
         {
             return this.m_Alarms;
         }
-        /*
-            public CircuitUpdateDataStructure[] getCircuitArray()
-            {
-                return this.circuitArray;
-            }
-        */
+
+        public CircuitUpdateDataStructure[] getCircuitArray()
+        {
+            return this.circuitArray;
+        }
+
         public bool isDeviceready()
         {
             return this.m_Ok == 1;
@@ -264,6 +266,16 @@
         public bool isDeviceServiceMode()
         {
             return this.m_Ok == 3;
+        }
+
+        public bool isSpaActive()
+        {
+            return this.circuitArray != null && this.circuitArray.Any(x => x.id == CircuitUpdateDataStructure.SPA_CIRCUIT_ID && x.state == 1);
+        }
+
+        public bool isPoolActive()
+        {
+            return this.circuitArray != null && this.circuitArray.Any(x => x.id == CircuitUpdateDataStructure.POOL_CIRCUIT_ID && x.state == 1);
         }
     }
 }

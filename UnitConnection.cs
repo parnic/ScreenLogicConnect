@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -22,22 +23,36 @@ namespace ScreenLogicConnect
             var stream = client.GetStream();
             stream.Write(connMsg, 0, connMsg.Length);
             stream.SendHLMessage(Messages.ChallengeString.QUERY(0));
-            Console.WriteLine("sent challenge string");
+            Debug.WriteLine("sent challenge string");
             var recvBuf = new byte[1024];
             var readBytes = stream.Read(recvBuf, 0, recvBuf.Length);
-            Console.WriteLine("read {0}", readBytes);
+            Debug.WriteLine("read {0}", readBytes);
 
             stream.SendHLMessage(createLoginMessage(new sbyte[16]));
-            Console.WriteLine("sent login message");
+            Debug.WriteLine("sent login message");
             readBytes = stream.Read(recvBuf, 0, recvBuf.Length);
-            Console.WriteLine("read {0}", readBytes);
+            Debug.WriteLine("read {0}", readBytes);
         }
 
         public Messages.GetPoolStatus GetPoolStatus()
         {
             client.GetStream().SendHLMessage(Messages.GetPoolStatus.QUERY(0));
-            Console.WriteLine("sent status message");
+            Debug.WriteLine("sent status message");
             return new Messages.GetPoolStatus(getMessage(client.GetStream()));
+        }
+
+        public Messages.GetControllerConfig GetControllerConfig()
+        {
+            client.GetStream().SendHLMessage(Messages.GetControllerConfig.QUERY(0));
+            Debug.WriteLine("sent controller config message");
+            return new Messages.GetControllerConfig(getMessage(client.GetStream()));
+        }
+
+        public Messages.GetMode GetMode()
+        {
+            client.GetStream().SendHLMessage(Messages.GetMode.QUERY(0));
+            Debug.WriteLine("sent get-mode message");
+            return new Messages.GetMode(getMessage(client.GetStream()));
         }
 
         private static Messages.HLMessage getMessage(NetworkStream ns)
