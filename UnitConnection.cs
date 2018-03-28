@@ -111,7 +111,7 @@ namespace ScreenLogicConnect
             Messages.ClientLogin login = new Messages.ClientLogin((short)0, (short)27);
             login.m_schema = 348;
             login.m_connectionType = 0;
-            login.m_version = "Android";
+            login.m_version = "ScreenLogicConnect library";
             if (encodedPwd.Length > 16)
             {
                 byte[] temp = new byte[16];
