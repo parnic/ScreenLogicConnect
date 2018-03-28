@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace ScreenLogicConnect
 {
@@ -15,42 +18,31 @@ namespace ScreenLogicConnect
 
         public EasyTouchUnit(UdpReceiveResult result)
         {
-            if (BitConverter.ToInt32(result.Buffer, 0) == 2)
+            try
             {
-                int i;
-                byte[] temp = new byte[4];
-                for (i = 4; i < 8; i++)
+                ipAddress = result.RemoteEndPoint.Address;
+
+                using (var ms = new MemoryStream(result.Buffer))
                 {
-                    temp[i - 4] = result.Buffer[i];
-                }
-                try
-                {
-                    this.ipAddress = result.RemoteEndPoint.Address;
-                    port = BitConverter.ToInt16(result.Buffer, 8);
-                    gatewayType = result.Buffer[10];
-                    gatewaySubType = result.Buffer[11];
-                    int nameDataSize = 28;
-                    i = 0;
-                    while (i < nameDataSize)
+                    using (var br = new BinaryReader(ms))
                     {
-                        i++;
-                        if (result.Buffer[i + 12] == 0)
+                        var unitType = br.ReadInt32();
+                        if (unitType == 2)
                         {
-                            nameDataSize = i;
+                            br.ReadBytes(4);
+                            port = br.ReadInt16();
+                            gatewayType = br.ReadByte();
+                            gatewaySubType = br.ReadByte();
+                            gatewayName = Encoding.ASCII.GetString(result.Buffer.Skip((int)ms.Position).TakeWhile(x => x != 0).ToArray());
+
+                            isValid = true;
                         }
                     }
-                    char[] nameData = new char[nameDataSize];
-                    for (i = 0; i < nameDataSize; i++)
-                    {
-                        nameData[i] = (char)result.Buffer[i + 12];
-                    }
-                    gatewayName = new String(nameData);
-                    isValid = true;
                 }
-                catch (Exception e)
-                {
-                    System.Diagnostics.Debug.WriteLine(e.StackTrace);
-                }
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
     }

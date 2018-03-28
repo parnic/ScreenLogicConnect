@@ -139,12 +139,12 @@ namespace ScreenLogicConnect.Messages
 
         public bool isSpaActive()
         {
-            return this.circuitArray != null && this.circuitArray.Any(x => x.id == CircuitUpdateDataStructure.SPA_CIRCUIT_ID && x.state == 1);
+            return this.circuitArray?.Any(x => x.id == CircuitUpdateDataStructure.SPA_CIRCUIT_ID && x.state == 1) ?? false;
         }
 
         public bool isPoolActive()
         {
-            return this.circuitArray != null && this.circuitArray.Any(x => x.id == CircuitUpdateDataStructure.POOL_CIRCUIT_ID && x.state == 1);
+            return this.circuitArray?.Any(x => x.id == CircuitUpdateDataStructure.POOL_CIRCUIT_ID && x.state == 1) ?? false;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -8,12 +7,18 @@ namespace ScreenLogicConnect
 {
     public class FindUnits
     {
+        public static readonly byte[] broadcastData = new byte[]
+        {
+            1, 0, 0, 0,
+            0, 0, 0, 0,
+        };
+
         protected const short multicastPort = 1444;
         private Socket searchSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
-        public static async Task<IEnumerable<EasyTouchUnit>> Find()
+        public static async Task<List<EasyTouchUnit>> Find()
         {
-            List<EasyTouchUnit> units = new List<EasyTouchUnit>();
+            var units = new List<EasyTouchUnit>();
 
             using (var udpClient = new UdpClient(new IPEndPoint(GetMyIP(), 53112))
             {
@@ -21,7 +26,7 @@ namespace ScreenLogicConnect
                 MulticastLoopback = false,
             })
             {
-                await udpClient.SendAsync(FindUnitBroadcast.data, FindUnitBroadcast.data.Length, new IPEndPoint(IPAddress.Broadcast, multicastPort));
+                await udpClient.SendAsync(broadcastData, broadcastData.Length, new IPEndPoint(IPAddress.Broadcast, multicastPort));
 
                 var buf = await udpClient.ReceiveAsync();
                 var findServerResponse = new EasyTouchUnit(buf);
