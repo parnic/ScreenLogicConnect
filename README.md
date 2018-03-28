@@ -9,6 +9,21 @@ It was created to be able to connect to my pool equipment via a Raspberry Pi. Bu
 See Program.cs inside the Test directory for an example of interfacing with the library. Broadly, you'll want to await `ScreenLogicConnect.FindUnits.Find()` to get a list of available controllers on your network, create a connection with
 `new ScreenLogicConnect.UnitConnection()` and await `connection.ConnectTo(controller)`. Once connected, there are a few methods implemented such as `GetPoolStatus()` that should show up via Intellisense.
 
+## Example output
+
+This is an example of what the test app currenty outputs:
+```
+Air temp: 64 degrees F
+Pool temp: 66 degrees F
+Spa temp: 60 degrees F (Last)
+ORP: 721
+pH: 7.60
+Salt: 3050 PPM
+Saturation: -0.32
+```
+
+Note that internally any decimal value is stored in an integer format. The pH value in this example is stored in the GetPoolStatus message as "760" and must be divided by 100. Saturation is stored as -32 and must also be divided by 100. (This is how the Pentair system works, the library is not attempting to fix the values up internally.)
+
 ## Notes
 
 Contributions welcome. There are lots of available messages supported by ScreenLogic that the app doesn't support yet, but can be added pretty easily as needed.
