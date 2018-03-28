@@ -21,7 +21,7 @@ namespace ScreenLogicConnect
                 MulticastLoopback = false,
             })
             {
-                await udpClient.SendAsync((byte[])(Array)FindUnitBroadcast.data, FindUnitBroadcast.data.Length, new IPEndPoint(IPAddress.Broadcast, multicastPort));
+                await udpClient.SendAsync(FindUnitBroadcast.data, FindUnitBroadcast.data.Length, new IPEndPoint(IPAddress.Broadcast, multicastPort));
 
                 var buf = await udpClient.ReceiveAsync();
                 var findServerResponse = new EasyTouchUnit(buf);

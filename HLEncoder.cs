@@ -2,6 +2,7 @@
 
 namespace ScreenLogicConnect
 {
+    // mostly reverse engineered. untested. may or may not work.
     public class HLEncoder
     {
         //private int BLOCK_SIZE = 16;

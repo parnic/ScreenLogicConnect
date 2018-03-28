@@ -1,36 +1,38 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 
 namespace ScreenLogicConnect.Messages
 {
     public class GetPoolStatus : HLMessage
     {
-        private CircuitUpdateDataStructure[] circuitArray;
-        private int m_AirTemp;
-        private int m_Alarms;
-        private int m_BodiesCount;
-        private int m_CircuitCount;
-        private byte m_CleanerDelay;
-        private int[] m_CoolSetPoint;
-        private int[] m_CurrentTemp;
-        private byte m_FreezeMode;
-        private int[] m_HeatMode;
-        private int[] m_HeatStatus;
-        private int m_ORP;
-        private int m_ORPTank;
-        private int m_Ok;
-        private int m_PH;
-        private int m_PHTank;
-        private byte m_Padding;
-        private byte m_PoolDelay;
-        private byte m_Remotes;
-        private int m_SaltPPM;
-        private int m_Saturation;
-        private int[] m_SetPoint;
-        private byte m_SpaDelay;
+        public CircuitUpdateDataStructure[] circuitArray { get; private set; }
+        public int m_AirTemp { get; private set; }
+        public int m_Alarms { get; private set; }
+        public int m_BodiesCount { get; private set; }
+        public int m_CircuitCount { get; private set; }
+        public byte m_CleanerDelay { get; private set; }
+        public int[] m_CoolSetPoint { get; private set; } = new int[2];
+        public int[] m_CurrentTemp { get; private set; } = new int[2];
+        public byte m_FreezeMode { get; private set; }
+        public int[] m_HeatMode { get; private set; } = new int[2];
+        public int[] m_HeatStatus { get; private set; } = new int[2];
+        public int m_ORP { get; private set; }
+        public int m_ORPTank { get; private set; }
+        public int m_Ok { get; private set; }
+        public int m_PH { get; private set; }
+        public int m_PHTank { get; private set; }
+        public byte m_PoolDelay { get; private set; }
+        public byte m_Remotes { get; private set; }
+        public int m_SaltPPM { get; private set; }
+        public int m_Saturation { get; private set; }
+        public int[] m_SetPoint { get; private set; } = new int[2];
+        public byte m_SpaDelay { get; private set; }
+
+        public const short HLM_POOL_GETSTATUSQ = 12526;
 
         public static GetPoolStatus QUERY(short senderID)
         {
-            return new GetPoolStatus(senderID, (short)12526);
+            return new GetPoolStatus(senderID, HLM_POOL_GETSTATUSQ);
         }
 
         private GetPoolStatus(short senderID, short msgID)
@@ -38,7 +40,7 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        public GetPoolStatus(sbyte[] header, sbyte[] data)
+        public GetPoolStatus(byte[] header, byte[] data)
                 : base(header, data)
         {
         }
@@ -48,209 +50,76 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        public override sbyte[] asByteArray()
+        public override byte[] asByteArray()
         {
-            putInteger(0);
+            using (var ms = new MemoryStream())
+            {
+                using (var bw = new BinaryWriter(ms))
+                {
+                    bw.Write(0);
+                }
+
+                data = ms.ToArray();
+            }
+
             return base.asByteArray();
         }
 
         protected override void decode()
         {
-            int i;
-            this.startIndex = 0;
-            this.m_Ok = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-            this.startIndex += 4;
-            this.m_FreezeMode = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
-            this.startIndex++;
-            this.m_Remotes = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
-            this.startIndex++;
-            this.m_PoolDelay = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
-            this.startIndex++;
-            this.m_SpaDelay = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
-            this.startIndex++;
-            this.m_CleanerDelay = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
-            this.startIndex++;
-            this.m_Padding = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
-            this.startIndex++;
-            this.m_Padding = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
-            this.startIndex++;
-            this.m_Padding = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
-            this.startIndex++;
-            this.m_AirTemp = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-            this.startIndex += 4;
-            this.m_BodiesCount = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-            this.startIndex += 4;
-            if (this.m_BodiesCount > 2)
+            using (var ms = new MemoryStream(data))
             {
-                this.m_BodiesCount = 2;
-            }
-            this.m_CurrentTemp = new int[2];
-            this.m_HeatStatus = new int[2];
-            this.m_SetPoint = new int[2];
-            this.m_CoolSetPoint = new int[2];
-            this.m_HeatMode = new int[2];
-            for (i = 0; i < this.m_BodiesCount; i++)
-            {
-                int bodyType = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-                this.startIndex += 4;
-                if (bodyType < 0 || bodyType >= 2)
+                using (var br = new BinaryReader(ms))
                 {
-                    bodyType = 0;
+                    m_Ok = br.ReadInt32();
+                    m_FreezeMode = br.ReadByte();
+                    m_Remotes = br.ReadByte();
+                    m_PoolDelay = br.ReadByte();
+                    m_SpaDelay = br.ReadByte();
+                    m_CleanerDelay = br.ReadByte();
+                    br.ReadBytes(3);
+                    m_AirTemp = br.ReadInt32();
+                    m_BodiesCount = br.ReadInt32();
+                    if (m_BodiesCount > 2)
+                    {
+                        m_BodiesCount = 2; // todo: what? this is how the android app is handling this, but it seems weird.
+                    }
+                    for (int i = 0; i < m_BodiesCount; i++)
+                    {
+                        var bodyType = br.ReadInt32();
+                        if (bodyType < 0 || bodyType >= 2)
+                        {
+                            bodyType = 0;
+                        }
+                        m_CurrentTemp[bodyType] = br.ReadInt32();
+                        m_HeatStatus[bodyType] = br.ReadInt32();
+                        m_SetPoint[bodyType] = br.ReadInt32();
+                        m_CoolSetPoint[bodyType] = br.ReadInt32();
+                        m_HeatMode[bodyType] = br.ReadInt32();
+                    }
+                    m_CircuitCount = br.ReadInt32();
+                    circuitArray = new CircuitUpdateDataStructure[m_CircuitCount];
+                    for (int i = 0; i < m_CircuitCount; i++)
+                    {
+                        circuitArray[i] = new CircuitUpdateDataStructure()
+                        {
+                            id = br.ReadInt32(),
+                            state = br.ReadInt32(),
+                            colorSet = br.ReadByte(),
+                            colorPos = br.ReadByte(),
+                            colorStagger = br.ReadByte(),
+                            delay = br.ReadByte(),
+                        };
+                    }
+                    m_PH = br.ReadInt32();
+                    m_ORP = br.ReadInt32();
+                    m_Saturation = br.ReadInt32();
+                    m_SaltPPM = br.ReadInt32();
+                    m_PHTank = br.ReadInt32();
+                    m_ORPTank = br.ReadInt32();
+                    m_Alarms = br.ReadInt32();
                 }
-                this.m_CurrentTemp[bodyType] = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-                this.startIndex += 4;
-                this.m_HeatStatus[bodyType] = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-                this.startIndex += 4;
-                this.m_SetPoint[bodyType] = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-                this.startIndex += 4;
-                this.m_CoolSetPoint[bodyType] = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-                this.startIndex += 4;
-                this.m_HeatMode[bodyType] = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-                this.startIndex += 4;
             }
-            int m_CircuitCount = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-            this.startIndex += 4;
-            this.circuitArray = new CircuitUpdateDataStructure[m_CircuitCount];
-            for (i = 0; i < m_CircuitCount; i++)
-            {
-                this.circuitArray[i] = new CircuitUpdateDataStructure();
-                this.circuitArray[i].id = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-                this.startIndex += 4;
-                this.circuitArray[i].state = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-                this.startIndex += 4;
-                this.circuitArray[i].colorSet = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
-                this.startIndex++;
-                this.circuitArray[i].colorPos = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
-                this.startIndex++;
-                this.circuitArray[i].colorStagger = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
-                this.startIndex++;
-                this.circuitArray[i].delay = ByteHelper.getUnsignedByteFromByteArray(this.data, this.startIndex);
-                this.startIndex++;
-            }
-            this.m_PH = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-            this.startIndex += 4;
-            this.m_ORP = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-            this.startIndex += 4;
-            this.m_Saturation = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-            this.startIndex += 4;
-            this.m_SaltPPM = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-            this.startIndex += 4;
-            this.m_PHTank = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-            this.startIndex += 4;
-            this.m_ORPTank = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-            this.startIndex += 4;
-            this.m_Alarms = ByteHelper.getIntFromByteArrayLittleEndian(this.data, this.startIndex);
-            this.startIndex += 4;
-        }
-
-        public int getM_Ok()
-        {
-            return this.m_Ok;
-        }
-
-        public byte getM_FreezeMode()
-        {
-            return this.m_FreezeMode;
-        }
-
-        public byte getM_Remotes()
-        {
-            return this.m_Remotes;
-        }
-
-        public byte getM_PoolDelay()
-        {
-            return this.m_PoolDelay;
-        }
-
-        public byte getM_SpaDelay()
-        {
-            return this.m_SpaDelay;
-        }
-
-        public byte getM_CleanerDelay()
-        {
-            return this.m_CleanerDelay;
-        }
-
-        public byte getM_Padding()
-        {
-            return this.m_Padding;
-        }
-
-        public int getM_AirTemp()
-        {
-            return this.m_AirTemp;
-        }
-
-        public int getM_BodiesCount()
-        {
-            return this.m_BodiesCount;
-        }
-
-        public int[] getM_CurrentTemp()
-        {
-            return this.m_CurrentTemp;
-        }
-
-        public int[] getM_HeatStatus()
-        {
-            return this.m_HeatStatus;
-        }
-
-        public int[] getM_SetPoint()
-        {
-            return this.m_SetPoint;
-        }
-
-        public int[] getM_CoolSetPoint()
-        {
-            return this.m_CoolSetPoint;
-        }
-
-        public int[] getM_HeatMode()
-        {
-            return this.m_HeatMode;
-        }
-
-        public int getM_PH()
-        {
-            return this.m_PH;
-        }
-
-        public int getM_ORP()
-        {
-            return this.m_ORP;
-        }
-
-        public int getM_Saturation()
-        {
-            return this.m_Saturation;
-        }
-
-        public int getM_SaltPPM()
-        {
-            return this.m_SaltPPM;
-        }
-
-        public int getM_PHTank()
-        {
-            return this.m_PHTank;
-        }
-
-        public int getM_ORPTank()
-        {
-            return this.m_ORPTank;
-        }
-
-        public int getM_Alarms()
-        {
-            return this.m_Alarms;
-        }
-
-        public CircuitUpdateDataStructure[] getCircuitArray()
-        {
-            return this.circuitArray;
         }
 
         public bool isDeviceready()

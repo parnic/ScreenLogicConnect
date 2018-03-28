@@ -16,9 +16,9 @@ namespace Test
                     await connection.ConnectTo(server);
                     var status = connection.GetPoolStatus();
                     var config = connection.GetControllerConfig();
-                    var degSymbol = config.getM_DegC() == 1 ? "C" : "F";
-                    Console.WriteLine($"Air temp: {status.getM_AirTemp()} degrees {degSymbol}");
-                    var currTempList = status.getM_CurrentTemp();
+                    var degSymbol = config.m_DegC == 1 ? "C" : "F";
+                    Console.WriteLine($"Air temp: {status.m_AirTemp} degrees {degSymbol}");
+                    var currTempList = status.m_CurrentTemp;
                     int poolTemp = 0;
                     int spaTemp = 0;
                     if (currTempList.Length > 0)
@@ -45,10 +45,10 @@ namespace Test
                     {
                         Console.WriteLine("Couldn't get spa temperature.");
                     }
-                    Console.WriteLine($"ORP: {status.getM_ORP()}");
-                    Console.WriteLine($"pH: {status.getM_PH() / 100.0f:0.00}");
-                    Console.WriteLine($"Salt: {status.getM_SaltPPM() * 50} PPM");
-                    Console.WriteLine($"Saturation: {status.getM_Saturation() / 100.0f}");
+                    Console.WriteLine($"ORP: {status.m_ORP}");
+                    Console.WriteLine($"pH: {status.m_PH / 100.0f:0.00}");
+                    Console.WriteLine($"Salt: {status.m_SaltPPM * 50} PPM");
+                    Console.WriteLine($"Saturation: {status.m_Saturation / 100.0f}");
 
                     break;
                 }

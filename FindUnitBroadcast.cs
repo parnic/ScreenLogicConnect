@@ -2,12 +2,12 @@
 {
     public class FindUnitBroadcast
     {
-        public static readonly sbyte[] data = new sbyte[]
+        public static readonly byte[] data = new byte[]
         {
-            ByteHelper.getLowWordLowByte(1),
-            ByteHelper.getLowWordHighByte(1),
-            ByteHelper.getHighWordLowByte(1),
-            ByteHelper.getHighWordHighByte(1),
+            1,
+            0,
+            0,
+            0,
             0,
             0,
             0,

@@ -14,7 +14,7 @@
         {
         }
 
-        public GetMode(sbyte[] header, sbyte[] data)
+        public GetMode(byte[] header, byte[] data)
             : base(header, data)
         {
         }

@@ -28,7 +28,7 @@ namespace ScreenLogicConnect
             var readBytes = stream.Read(recvBuf, 0, recvBuf.Length);
             Debug.WriteLine("read {0}", readBytes);
 
-            stream.SendHLMessage(createLoginMessage(new sbyte[16]));
+            stream.SendHLMessage(createLoginMessage(new byte[16]));
             Debug.WriteLine("sent login message");
             readBytes = stream.Read(recvBuf, 0, recvBuf.Length);
             Debug.WriteLine("read {0}", readBytes);
@@ -58,12 +58,12 @@ namespace ScreenLogicConnect
         private static Messages.HLMessage getMessage(NetworkStream ns)
         {
             int bytesRead = 0;
-            sbyte[] headerBuffer = new sbyte[8];
+            byte[] headerBuffer = new byte[8];
             while (bytesRead < 8)
             {
                 try
                 {
-                    bytesRead += ns.Read((byte[])(Array)headerBuffer, bytesRead, 8 - bytesRead);
+                    bytesRead += ns.Read(headerBuffer, bytesRead, 8 - bytesRead);
                     if (bytesRead < 0)
                     {
                         return null;
@@ -76,7 +76,7 @@ namespace ScreenLogicConnect
             {
                 return null;
             }
-            sbyte[] dataBuffer = new sbyte[msgDataSize];
+            byte[] dataBuffer = new byte[msgDataSize];
             bytesRead = 0;
             while (bytesRead < msgDataSize)
             {
@@ -99,33 +99,33 @@ namespace ScreenLogicConnect
             {
                 bytes[i] = connBytes[i];
             }
-            bytes[iLen + 0] = (byte)13;
-            bytes[iLen + 1] = (byte)10;
-            bytes[iLen + 2] = (byte)13;
-            bytes[iLen + 3] = (byte)10;
+            bytes[iLen + 0] = (byte)'\r';
+            bytes[iLen + 1] = (byte)'\n';
+            bytes[iLen + 2] = (byte)'\r';
+            bytes[iLen + 3] = (byte)'\n';
             return bytes;
         }
 
-        private Messages.HLMessage createLoginMessage(sbyte[] encodedPwd)
+        private Messages.HLMessage createLoginMessage(byte[] encodedPwd)
         {
             Messages.ClientLogin login = new Messages.ClientLogin((short)0, (short)27);
-            login.set_schema(348);
-            login.set_connectionType(0);
-            login.set_version("Android");
+            login.m_schema = 348;
+            login.m_connectionType = 0;
+            login.m_version = "Android";
             if (encodedPwd.Length > 16)
             {
-                sbyte[] temp = new sbyte[16];
+                byte[] temp = new byte[16];
                 for (int i = 0; i < 16; i++)
                 {
                     temp[i] = encodedPwd[i];
                 }
-                login.set_byteArray(temp);
+                login.m_byteArray = temp;
             }
             else
             {
-                login.set_byteArray(encodedPwd);
+                login.m_byteArray = encodedPwd;
             }
-            login.set_procID(2);
+            login.m_procID = 2;
             return login;
         }
 

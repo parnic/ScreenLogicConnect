@@ -15,7 +15,7 @@ namespace ScreenLogicConnect
 
         public EasyTouchUnit(UdpReceiveResult result)
         {
-            if (ByteHelper.getIntFromByteArrayLittleEndian((sbyte[])(Array)result.Buffer, 0) == 2)
+            if (BitConverter.ToInt32(result.Buffer, 0) == 2)
             {
                 int i;
                 byte[] temp = new byte[4];
@@ -26,7 +26,7 @@ namespace ScreenLogicConnect
                 try
                 {
                     this.ipAddress = result.RemoteEndPoint.Address;
-                    port = ByteHelper.getShortFromByteArrayAsLittleEndian((sbyte[])(Array)result.Buffer, 8);
+                    port = BitConverter.ToInt16(result.Buffer, 8);
                     gatewayType = result.Buffer[10];
                     gatewaySubType = result.Buffer[11];
                     int nameDataSize = 28;

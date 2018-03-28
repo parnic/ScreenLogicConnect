@@ -1,31 +1,38 @@
 ﻿using System;
+using System.IO;
 
 namespace ScreenLogicConnect
 {
     public class HLTime
     {
         public const int size = 16;
-        public short day = (short)1;
-        public short dayOfWeek = (short)1;
-        public short hour = (short)1;
-        public short millisecond = (short)1;
-        public short minute = (short)1;
-        public short month = (short)1;
-        public short second = (short)1;
-        public short year = (short)2000;
+        public short day = 1;
+        public short dayOfWeek = 1;
+        public short hour = 1;
+        public short millisecond = 1;
+        public short minute = 1;
+        public short month = 1;
+        public short second = 1;
+        public short year = 2000;
 
-        public HLTime(sbyte[] data, int startIndex)
+        public HLTime(byte[] data, int startIndex)
         {
-            if (data.Length - startIndex >= 16)
+            if (data.Length - startIndex >= size)
             {
-                this.year = ByteHelper.getShortFromByteArrayAsLittleEndian(data, startIndex + 0);
-                this.month = ByteHelper.getShortFromByteArrayAsLittleEndian(data, startIndex + 2);
-                this.dayOfWeek = ByteHelper.getShortFromByteArrayAsLittleEndian(data, startIndex + 4);
-                this.day = ByteHelper.getShortFromByteArrayAsLittleEndian(data, startIndex + 6);
-                this.hour = ByteHelper.getShortFromByteArrayAsLittleEndian(data, startIndex + 8);
-                this.minute = ByteHelper.getShortFromByteArrayAsLittleEndian(data, startIndex + 10);
-                this.second = ByteHelper.getShortFromByteArrayAsLittleEndian(data, startIndex + 12);
-                this.millisecond = ByteHelper.getShortFromByteArrayAsLittleEndian(data, startIndex + 14);
+                using (var ms = new MemoryStream(data))
+                {
+                    using (var br = new BinaryReader(ms))
+                    {
+                        year = br.ReadInt16();
+                        month = br.ReadInt16();
+                        dayOfWeek = br.ReadInt16();
+                        day = br.ReadInt16();
+                        hour = br.ReadInt16();
+                        minute = br.ReadInt16();
+                        second = br.ReadInt16();
+                        millisecond = br.ReadInt16();
+                    }
+                }
             }
         }
 
