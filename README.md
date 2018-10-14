@@ -11,7 +11,7 @@ See Program.cs inside the Test directory for an example of interfacing with the 
 
 ## Example output
 
-This is an example of what the test app currenty outputs:
+This is an example of what the test app currently outputs:
 ```
 Air temp: 64 degrees F
 Pool temp: 66 degrees F
