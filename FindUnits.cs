@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -28,11 +29,14 @@ namespace ScreenLogicConnect
             {
                 await udpClient.SendAsync(broadcastData, broadcastData.Length, new IPEndPoint(IPAddress.Broadcast, multicastPort));
 
-                var buf = await udpClient.ReceiveAsync();
-                var findServerResponse = new EasyTouchUnit(buf);
-                if (findServerResponse.isValid)
+                var buf = await udpClient.ReceiveAsync().TimeoutAfter(TimeSpan.FromSeconds(1));
+                if (buf != null)
                 {
-                    units.Add(findServerResponse);
+                    var findServerResponse = new EasyTouchUnit(buf);
+                    if (findServerResponse.isValid)
+                    {
+                        units.Add(findServerResponse);
+                    }
                 }
             }
 
