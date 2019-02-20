@@ -6,8 +6,9 @@ It was created to be able to connect to my pool equipment via a Raspberry Pi. Bu
 
 ## Usage
 
-See Program.cs inside the Test directory for an example of interfacing with the library. Broadly, you'll want to await `ScreenLogicConnect.FindUnits.Find()` to get a list of available controllers on your network, create a connection with
-`new ScreenLogicConnect.UnitConnection()` and await `connection.ConnectTo(controller)`. Once connected, there are a few methods implemented such as `GetPoolStatus()` that should show up via Intellisense.
+See Program.cs inside the Test directory for an example of interfacing with the library. Broadly, for local connections you'll want to await `ScreenLogicConnect.FindUnits.Find()` to get a list of available controllers on your network, create a connection with
+`new ScreenLogicConnect.UnitConnection()` and await `connection.ConnectTo(controller)`. Once connected, there are a few methods implemented such as `GetPoolStatus()` that should show up via Intellisense. For remote connections you'll want to await
+`ScreenLogicConnect.RemoteConnect.GetGatewayInfo(systemName)` then ensure your password is specified for `connection.ConnectTo(controller, password)`. Everything else should work the same as a local connection.
 
 ## Example output
 
