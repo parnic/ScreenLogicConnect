@@ -30,7 +30,7 @@ namespace ScreenLogicConnect
                 await udpClient.SendAsync(broadcastData, broadcastData.Length, new IPEndPoint(IPAddress.Broadcast, multicastPort));
 
                 var buf = await udpClient.ReceiveAsync().TimeoutAfter(TimeSpan.FromSeconds(1));
-                if (buf != null)
+                if (buf != null && buf.RemoteEndPoint != null)
                 {
                     var findServerResponse = new EasyTouchUnit(buf);
                     if (findServerResponse.isValid)

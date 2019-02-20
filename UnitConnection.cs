@@ -11,7 +11,7 @@ namespace ScreenLogicConnect
     {
         TcpClient client;
 
-        public async Task ConnectTo(EasyTouchUnit unit)
+        public async Task ConnectTo(EasyTouchUnit unit, string password = null)
         {
             if (client != null)
             {
@@ -31,36 +31,45 @@ namespace ScreenLogicConnect
             var recvBuf = new byte[1024];
             var readBytes = stream.Read(recvBuf, 0, recvBuf.Length);
             Debug.WriteLine("read {0}", readBytes);
+            string challengeStr = null;
+            using (var ms = new MemoryStream(recvBuf))
+            {
+                using (var br = new BinaryReader(ms))
+                {
+                    br.ReadBytes(8);
+                    challengeStr = Messages.HLMessageTypeHelper.extractString(br);
+                }
+            }
 
             Debug.WriteLine("sending login message");
-            stream.SendHLMessage(createLoginMessage(new byte[16]));
+            stream.SendHLMessage(createLoginMessage(new HLEncoder(password).GetEncryptedPassword(challengeStr)));
 
             readBytes = stream.Read(recvBuf, 0, recvBuf.Length);
             Debug.WriteLine("read {0}", readBytes);
         }
 
-        public Messages.GetPoolStatus GetPoolStatus()
+        public async Task<Messages.GetPoolStatus> GetPoolStatus()
         {
             Debug.WriteLine("sending status message");
             client.GetStream().SendHLMessage(Messages.GetPoolStatus.QUERY(0));
-            return new Messages.GetPoolStatus(getMessage(client.GetStream()));
+            return new Messages.GetPoolStatus(await GetMessage(client.GetStream()));
         }
 
-        public Messages.GetControllerConfig GetControllerConfig()
+        public async Task<Messages.GetControllerConfig> GetControllerConfig()
         {
             Debug.WriteLine("sending controller config message");
             client.GetStream().SendHLMessage(Messages.GetControllerConfig.QUERY(0));
-            return new Messages.GetControllerConfig(getMessage(client.GetStream()));
+            return new Messages.GetControllerConfig(await GetMessage(client.GetStream()));
         }
 
-        public Messages.GetMode GetMode()
+        public async Task<Messages.GetMode> GetMode()
         {
             Debug.WriteLine("sending get-mode message");
             client.GetStream().SendHLMessage(Messages.GetMode.QUERY(0));
-            return new Messages.GetMode(getMessage(client.GetStream()));
+            return new Messages.GetMode(await GetMessage(client.GetStream()));
         }
 
-        private static Messages.HLMessage getMessage(NetworkStream ns)
+        public static async Task<Messages.HLMessage> GetMessage(NetworkStream ns)
         {
             int bytesRead = 0;
             byte[] headerBuffer = new byte[8];
@@ -68,7 +77,7 @@ namespace ScreenLogicConnect
             {
                 try
                 {
-                    bytesRead += ns.Read(headerBuffer, bytesRead, 8 - bytesRead);
+                    bytesRead += await ns.ReadAsync(headerBuffer, bytesRead, 8 - bytesRead);
                     if (bytesRead < 0)
                     {
                         return null;
@@ -87,7 +96,7 @@ namespace ScreenLogicConnect
             bytesRead = 0;
             while (bytesRead < msgDataSize)
             {
-                bytesRead += ns.Read((byte[])(Array)dataBuffer, bytesRead, msgDataSize - bytesRead);
+                bytesRead += await ns.ReadAsync((byte[])(Array)dataBuffer, bytesRead, msgDataSize - bytesRead);
 
                 if (bytesRead < 0)
                 {
@@ -100,7 +109,7 @@ namespace ScreenLogicConnect
             return new Messages.HLMessage(headerBuffer, dataBuffer);
         }
 
-        private static string connectionMessage = "CONNECTSERVERHOST";
+        private static string connectionMessage = "CONNECTSERVERHOST\r\n\r\n";
         private byte[] CreateConnectServerSoftMessage()
         {
             using (var ms = new MemoryStream())
@@ -108,10 +117,6 @@ namespace ScreenLogicConnect
                 using (var bw = new BinaryWriter(ms))
                 {
                     bw.Write(Encoding.ASCII.GetBytes(connectionMessage));
-                    bw.Write((byte)'\r');
-                    bw.Write((byte)'\n');
-                    bw.Write((byte)'\r');
-                    bw.Write((byte)'\n');
                 }
 
                 return ms.ToArray();
@@ -125,6 +130,11 @@ namespace ScreenLogicConnect
             login.m_connectionType = 0;
             login.m_version = "ScreenLogicConnect library";
             login.m_procID = 2;
+
+            if (encodedPwd == null)
+            {
+                encodedPwd = new byte[16];
+            }
 
             if (encodedPwd.Length > 16)
             {

@@ -45,5 +45,20 @@ namespace ScreenLogicConnect
                 System.Diagnostics.Debug.WriteLine(e.StackTrace);
             }
         }
+
+        public EasyTouchUnit(Messages.GetGatewayData data)
+        {
+            try
+            {
+                gatewayName = data.GatewayName;
+                ipAddress = IPAddress.Parse(data.IPAddr);
+                port = data.Port;
+                isValid = data.GatewayFound && data.PortOpen;
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e.StackTrace);
+            }
+        }
     }
 }
