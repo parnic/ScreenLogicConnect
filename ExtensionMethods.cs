@@ -1,7 +1,10 @@
 ﻿using ScreenLogicConnect.Messages;
+using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ScreenLogicConnect
 {
@@ -37,6 +40,25 @@ namespace ScreenLogicConnect
             bw.Write(hlTime.minute);
             bw.Write(hlTime.second);
             bw.Write(hlTime.millisecond);
+        }
+
+        public static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)
+        {
+
+            using (var timeoutCancellationTokenSource = new CancellationTokenSource())
+            {
+
+                var completedTask = await Task.WhenAny(task, Task.Delay(timeout, timeoutCancellationTokenSource.Token));
+                if (completedTask == task)
+                {
+                    timeoutCancellationTokenSource.Cancel();
+                    return await task;
+                }
+                else
+                {
+                    return default(TResult);
+                }
+            }
         }
     }
 }
