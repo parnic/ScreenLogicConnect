@@ -90,19 +90,16 @@
             MakeKeyFromBlock(MakeBlock(sChallengeStr, 0));
         }
 
-        private void MakeKeyFromBlock(byte[] pass)
+        private void MakeKeyFromBlock(byte[] block)
         {
-            if (pass == null)
+            if (block == null)
             {
                 return;
             }
-            if (pass.Length == 16 || pass.Length == 24 || pass.Length == 32)
+
+            if (block.Length == 16 || block.Length == 24 || block.Length == 32)
             {
-                int i;
-                int j;
-                int[] iArr;
-                int tt;
-                switch (pass.Length)
+                switch (block.Length)
                 {
                     case 16:
                         iROUNDS = 10;
@@ -114,110 +111,76 @@
                         iROUNDS = MAX_ROUNDS;
                         break;
                 }
-                for (i = 0; i <= iROUNDS; i++)
+
+                for (int round = 0; round <= iROUNDS; round++)
                 {
-                    for (j = 0; j < 4; j++)
+                    for (int i = 0; i < 4; i++)
                     {
-                        Ke[i, j] = 0;
-                        Kd[i, j] = 0;
+                        Ke[round, i] = 0;
+                        Kd[round, i] = 0;
                     }
                 }
+
                 int ROUND_KEY_COUNT = (iROUNDS + 1) * 4;
-                int KC = pass.Length / 4;
-                int j2 = 0;
-                for (i = 0; i < KC; i++)
+                int numBlockChunks = block.Length / 4;
+                for (int blockChunk = 0; blockChunk < numBlockChunks; blockChunk++)
                 {
-                    j = j2 + 1;
-                    tk[i] = pass[j2] << 24;
-                    iArr = tk;
-                    j2 = j + 1;
-                    iArr[i] = iArr[i] | (pass[j] << 16);
-                    iArr = tk;
-                    j = j2 + 1;
-                    iArr[i] = iArr[i] | (pass[j2] << 8);
-                    iArr = tk;
-                    j2 = j + 1;
-                    iArr[i] = iArr[i] | pass[j];
+                    tk[blockChunk] = (block[(blockChunk * 4) + 0] << 24) | (block[(blockChunk * 4) + 1] << 16) | (block[(blockChunk * 4) + 2] << 8) | block[(blockChunk * 4) + 3];
                 }
-                int t = 0;
-                i = 0;
-                while (i < KC && t < ROUND_KEY_COUNT)
+
+                int roundKey = 0;
+                for (int i = 0; i < numBlockChunks && roundKey < ROUND_KEY_COUNT; i++, roundKey++)
                 {
-                    Ke[t / 4, t % 4] = tk[i];
-                    Kd[iROUNDS - (t / 4), t % 4] = tk[i];
-                    i++;
-                    t++;
+                    Ke[roundKey / 4, roundKey % 4] = tk[i];
+                    Kd[iROUNDS - (roundKey / 4), roundKey % 4] = tk[i];
                 }
-                int rconpointer = 0;
-                while (t < ROUND_KEY_COUNT)
+
+                for (int rconPointer = 0; roundKey < ROUND_KEY_COUNT; rconPointer++)
                 {
-                    tt = tk[KC - 1];
-                    iArr = tk;
-                    int rconpointer2 = rconpointer + 1;
-                    iArr[0] = iArr[0] ^ ((((((sm_S[(tt >> 16) & 255] & 255) << 24) ^ ((sm_S[(tt >> 8) & 255] & 255) << 16)) ^ ((sm_S[tt & 255] & 255) << 8)) ^ (sm_S[(tt >> 24) & 255] & 255)) ^ ((sm_rcon[rconpointer] & 255) << 24));
-                    int i2;
-                    if (KC != MAX_KC)
                     {
-                        j2 = 0;
-                        i2 = 1;
-                        while (i2 < KC)
+                        var tkVal = tk[numBlockChunks - 1];
+                        tk[0] ^= ((((sm_S[(tkVal >> 16) & 0xFF] << 24) ^ (sm_S[(tkVal >> 8) & 0xFF] << 16)) ^ (sm_S[tkVal & 0xFF] << 8)) ^ sm_S[(tkVal >> 24) & 0xFF]) ^ (sm_rcon[rconPointer] << 24);
+                    }
+
+                    if (numBlockChunks != MAX_KC)
+                    {
+                        for (int prevIdx = 0, tkIdx = 1; tkIdx < numBlockChunks; prevIdx++, tkIdx++)
                         {
-                            iArr = tk;
-                            i = i2 + 1;
-                            j = j2 + 1;
-                            iArr[i2] = iArr[i2] ^ tk[j2];
-                            j2 = j;
-                            i2 = i;
+                            tk[tkIdx] ^= tk[prevIdx];
                         }
                     }
                     else
                     {
-                        i = 1;
-                        j = 0;
-                        while (i < KC / 2)
+                        var blockChunkMidpoint = numBlockChunks / 2;
+                        for (int prevIdx = 0, tkIdx = 1; tkIdx < blockChunkMidpoint; prevIdx++, tkIdx++)
                         {
-                            iArr = tk;
-                            i2 = i + 1;
-                            j2 = j + 1;
-                            iArr[i] = iArr[i] ^ tk[j];
-                            j = j2;
-                            i = i2;
+                            tk[tkIdx] ^= tk[prevIdx];
                         }
-                        tt = tk[(KC / 2) - 1];
-                        iArr = tk;
-                        int i3 = KC / 2;
-                        iArr[i3] = iArr[i3] ^ ((((sm_S[tt & 255] & 255) ^ ((sm_S[(tt >> 8) & 255] & 255) << 8)) ^ ((sm_S[(tt >> 16) & 255] & 255) << 16)) ^ ((sm_S[(tt >> 24) & 255] & 255) << 24));
-                        j = KC / 2;
-                        i2 = j + 1;
-                        j2 = j;
-                        while (i2 < KC)
+
+                        var tkVal = tk[blockChunkMidpoint - 1];
+                        tk[blockChunkMidpoint] ^= ((sm_S[tkVal & 0xFF] ^ (sm_S[(tkVal >> 8) & 0xFF] << 8)) ^ (sm_S[(tkVal >> 16) & 0xFF] << 16)) ^ (sm_S[(tkVal >> 24) & 0xFF] << 24);
+                        for (int prevIdx = blockChunkMidpoint, tkIdx = blockChunkMidpoint + 1; tkIdx < numBlockChunks; prevIdx++, tkIdx++)
                         {
-                            iArr = tk;
-                            i = i2 + 1;
-                            j = j2 + 1;
-                            iArr[i2] = iArr[i2] ^ tk[j2];
-                            i2 = i;
-                            j2 = j;
+                            tk[tkIdx] ^= tk[prevIdx];
                         }
                     }
-                    j = 0;
-                    while (j < KC && t < ROUND_KEY_COUNT)
+
+                    for (int tkIdx = 0; tkIdx < numBlockChunks && roundKey < ROUND_KEY_COUNT; tkIdx++, roundKey++)
                     {
-                        Ke[t / 4, t % 4] = tk[j];
-                        Kd[iROUNDS - (t / 4), t % 4] = tk[j];
-                        j++;
-                        t++;
+                        Ke[roundKey / 4, roundKey % 4] = tk[tkIdx];
+                        Kd[iROUNDS - (roundKey / 4), roundKey % 4] = tk[tkIdx];
                     }
-                    rconpointer = rconpointer2;
                 }
-                for (int r = 1; r < iROUNDS; r++)
+
+                for (int round = 1; round < iROUNDS; round++)
                 {
-                    for (j = 0; j < 4; j++)
+                    for (int i = 0; i < 4; i++)
                     {
-                        tt = Kd[r, j];
-                        Kd[r, j] = ((sm_U1[(tt >> 24) & 255] ^ sm_U2[(tt >> 16) & 255]) ^ sm_U3[(tt >> 8) & 255]) ^ sm_U4[tt & 255];
+                        var tt = Kd[round, i];
+                        Kd[round, i] = ((sm_U1[(tt >> 24) & 0xFF] ^ sm_U2[(tt >> 16) & 0xFF]) ^ sm_U3[(tt >> 8) & 0xFF]) ^ sm_U4[tt & 0xFF];
                     }
                 }
+
                 bKeyInit = true;
             }
         }
