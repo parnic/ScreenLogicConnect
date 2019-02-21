@@ -12,7 +12,7 @@ namespace ScreenLogicConnect
     {
         public static void SendHLMessage(this NetworkStream stream, Messages.HLMessage msg)
         {
-            var arr = msg.asByteArray();
+            var arr = msg.AsByteArray();
             System.Diagnostics.Debug.WriteLine($"  sent {arr.Length}");
             stream.Write(arr, 0, arr.Length);
         }
@@ -21,7 +21,7 @@ namespace ScreenLogicConnect
         {
             bw.Write(val.Length);
             bw.Write(Encoding.ASCII.GetBytes(val));
-            bw.Write(new byte[HLMessageTypeHelper.alignToNext4Boundary(val.Length)]);
+            bw.Write(new byte[HLMessageTypeHelper.AlignToNext4Boundary(val.Length)]);
         }
 
         public static void WritePrefixLength(this BinaryWriter bw, byte[] val)

@@ -5,7 +5,7 @@ namespace ScreenLogicConnect.Messages
 {
     public class ChallengeString : HLMessage
     {
-        public String challengeString { get; private set; }
+        public string ChallengeStr { get; private set; }
 
         public const short HLM_CLIENT_CHALLENGE = 14;
 
@@ -29,13 +29,13 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        protected override void decode()
+        protected override void Decode()
         {
             using (var ms = new MemoryStream(data))
             {
                 using (var br = new BinaryReader(dataByteStream))
                 {
-                    challengeString = HLMessageTypeHelper.extractString(br);
+                    ChallengeStr = HLMessageTypeHelper.ExtractString(br);
                 }
             }
         }

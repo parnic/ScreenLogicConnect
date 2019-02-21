@@ -19,9 +19,10 @@ namespace ScreenLogicConnect.Messages
 
         public static GetGatewayData QUERY(string systemName, short senderID = 0)
         {
-            var ret = new GetGatewayData(senderID, HLM_GETGATEWAYDATA);
-            ret.GatewayName = systemName;
-            return ret;
+            return new GetGatewayData(senderID, HLM_GETGATEWAYDATA)
+            {
+                GatewayName = systemName,
+            };
         }
 
         public GetGatewayData(short senderID, short msgID)
@@ -34,7 +35,7 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        public override byte[] asByteArray()
+        public override byte[] AsByteArray()
         {
             using (var ms = new MemoryStream())
             {
@@ -47,10 +48,10 @@ namespace ScreenLogicConnect.Messages
                 data = ms.ToArray();
             }
 
-            return base.asByteArray();
+            return base.AsByteArray();
         }
 
-        protected override void decode()
+        protected override void Decode()
         {
             using (var ms = new MemoryStream(data))
             {
@@ -58,7 +59,7 @@ namespace ScreenLogicConnect.Messages
                 {
                     GatewayFound = br.ReadBoolean();
                     LicenseOK = br.ReadBoolean();
-                    IPAddr = HLMessageTypeHelper.extractString(br);
+                    IPAddr = HLMessageTypeHelper.ExtractString(br);
                     Port = br.ReadInt16();
                     PortOpen = br.ReadBoolean();
                     RelayOn = br.ReadBoolean();

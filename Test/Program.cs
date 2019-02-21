@@ -25,7 +25,7 @@ namespace Test
             {
                 foreach (var server in servers)
                 {
-                    if (server.isValid)
+                    if (server.IsValid)
                     {
                         await ConnectToUnit(server);
                         break;
@@ -33,7 +33,7 @@ namespace Test
                 }
             }
 
-            if (servers == null || servers.Count == 0 || !servers.Any(x => x.isValid))
+            if (servers == null || servers.Count == 0 || !servers.Any(x => x.IsValid))
             {
                 Console.WriteLine("No local units found.");
             }
@@ -42,7 +42,7 @@ namespace Test
         static async Task DoRemoteConnect(string systemName, string systemPassword)
         {
             var unit = await ScreenLogicConnect.RemoteConnect.GetGatewayInfo(systemName);
-            if (unit.isValid)
+            if (unit.IsValid)
             {
                 await ConnectToUnit(unit, systemPassword);
             }

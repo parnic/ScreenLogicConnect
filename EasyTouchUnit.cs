@@ -9,18 +9,18 @@ namespace ScreenLogicConnect
 {
     public class EasyTouchUnit
     {
-        public String gatewayName { get; private set; }
-        public byte gatewaySubType { get; private set; }
-        public byte gatewayType { get; private set; }
-        public IPAddress ipAddress { get; private set; }
-        public bool isValid { get; private set; }
-        public short port { get; private set; }
+        public string GatewayName { get; private set; }
+        public byte GatewaySubType { get; private set; }
+        public byte GatewayType { get; private set; }
+        public IPAddress IPAddress { get; private set; }
+        public bool IsValid { get; private set; }
+        public short Port { get; private set; }
 
         public EasyTouchUnit(UdpReceiveResult result)
         {
             try
             {
-                ipAddress = result.RemoteEndPoint.Address;
+                IPAddress = result.RemoteEndPoint.Address;
 
                 using (var ms = new MemoryStream(result.Buffer))
                 {
@@ -30,12 +30,12 @@ namespace ScreenLogicConnect
                         if (unitType == 2)
                         {
                             br.ReadBytes(4);
-                            port = br.ReadInt16();
-                            gatewayType = br.ReadByte();
-                            gatewaySubType = br.ReadByte();
-                            gatewayName = Encoding.ASCII.GetString(result.Buffer.Skip((int)ms.Position).TakeWhile(x => x != 0).ToArray());
+                            Port = br.ReadInt16();
+                            GatewayType = br.ReadByte();
+                            GatewaySubType = br.ReadByte();
+                            GatewayName = Encoding.ASCII.GetString(result.Buffer.Skip((int)ms.Position).TakeWhile(x => x != 0).ToArray());
 
-                            isValid = true;
+                            IsValid = true;
                         }
                     }
                 }
@@ -50,10 +50,10 @@ namespace ScreenLogicConnect
         {
             try
             {
-                gatewayName = data.GatewayName;
-                ipAddress = IPAddress.Parse(data.IPAddr);
-                port = data.Port;
-                isValid = data.GatewayFound && data.PortOpen;
+                GatewayName = data.GatewayName;
+                IPAddress = IPAddress.Parse(data.IPAddr);
+                Port = data.Port;
+                IsValid = data.GatewayFound && data.PortOpen;
             }
             catch (Exception e)
             {

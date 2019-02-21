@@ -19,7 +19,7 @@ namespace ScreenLogicConnect
             }
 
             client = new TcpClient();
-            await client.ConnectAsync(unit.ipAddress, unit.port);
+            await client.ConnectAsync(unit.IPAddress, unit.Port);
 
             var connMsg = CreateConnectServerSoftMessage();
             var stream = client.GetStream();
@@ -37,7 +37,7 @@ namespace ScreenLogicConnect
                 using (var br = new BinaryReader(ms))
                 {
                     br.ReadBytes(8);
-                    challengeStr = Messages.HLMessageTypeHelper.extractString(br);
+                    challengeStr = Messages.HLMessageTypeHelper.ExtractString(br);
                 }
             }
 
@@ -87,7 +87,7 @@ namespace ScreenLogicConnect
                 catch { }
             }
 
-            int msgDataSize = Messages.HLMessage.extractDataSize(headerBuffer);
+            int msgDataSize = Messages.HLMessage.ExtractDataSize(headerBuffer);
             if (msgDataSize <= 0 || msgDataSize >= 100000)
             {
                 return null;

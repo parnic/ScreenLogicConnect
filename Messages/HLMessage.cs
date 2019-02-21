@@ -42,7 +42,7 @@ namespace ScreenLogicConnect.Messages
                 bw.Write(dataArray);
             }
 
-            decode();
+            Decode();
         }
 
         public HLMessage(HLMessage msg)
@@ -50,7 +50,7 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        public virtual byte[] asByteArray()
+        public virtual byte[] AsByteArray()
         {
             var dataLength = this.data?.Length ?? 0;
             byte[] result = new byte[dataLength + this.header.Length];
@@ -67,27 +67,27 @@ namespace ScreenLogicConnect.Messages
             return result;
         }
 
-        public static int extractDataSize(byte[] data)
+        public static int ExtractDataSize(byte[] data)
         {
             return BitConverter.ToInt32(data, 4);
         }
 
-        public short getMessageID()
+        public short GetMessageID()
         {
             return BitConverter.ToInt16(header, 2);
         }
 
-        public short getMessageSender()
+        public short GetMessageSender()
         {
             return BitConverter.ToInt16(header, 0);
         }
 
-        public String getMessageIDasString()
+        public string GetMessageIDasString()
         {
-            return getMessageID().ToString();
+            return GetMessageID().ToString();
         }
 
-        protected virtual void decode()
+        protected virtual void Decode()
         {
         }
     }

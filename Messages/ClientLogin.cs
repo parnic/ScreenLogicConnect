@@ -24,7 +24,7 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        public override byte[] asByteArray()
+        public override byte[] AsByteArray()
         {
             using (var ms = new MemoryStream())
             {
@@ -40,7 +40,7 @@ namespace ScreenLogicConnect.Messages
                 data = ms.ToArray();
             }
 
-            return base.asByteArray();
+            return base.AsByteArray();
         }
     }
 }

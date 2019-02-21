@@ -46,7 +46,7 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        public override byte[] asByteArray()
+        public override byte[] AsByteArray()
         {
             using (var ms = new MemoryStream())
             {
@@ -59,10 +59,10 @@ namespace ScreenLogicConnect.Messages
                 data = ms.ToArray();
             }
 
-            return base.asByteArray();
+            return base.AsByteArray();
         }
 
-        protected override void decode()
+        protected override void Decode()
         {
             using (var ms = new MemoryStream(data))
             {
@@ -79,7 +79,7 @@ namespace ScreenLogicConnect.Messages
                     m_HWType = br.ReadByte();
                     m_ControllerData = br.ReadByte();
                     m_EquipFlags = br.ReadInt32();
-                    m_genCircuitName = HLMessageTypeHelper.extractString(br);
+                    m_genCircuitName = HLMessageTypeHelper.ExtractString(br);
                     m_CircuitCount = br.ReadInt32();
                     bodyArray = new BodyDataStructure[m_CircuitCount];
                     for (int i = 0; i < m_CircuitCount; i++)
@@ -87,7 +87,7 @@ namespace ScreenLogicConnect.Messages
                         bodyArray[i] = new BodyDataStructure()
                         {
                             m_circuitID = br.ReadInt32(),
-                            m_name = HLMessageTypeHelper.extractString(br),
+                            m_name = HLMessageTypeHelper.ExtractString(br),
                             m_nameIndex = br.ReadByte(),
                             m_function = br.ReadByte(),
                             m_interface = br.ReadByte(),
@@ -105,7 +105,7 @@ namespace ScreenLogicConnect.Messages
                     m_ColorArray = new PentLightColor[colorCount];
                     for (int i = 0; i < colorCount; i++)
                     {
-                        m_ColorArray[i] = new PentLightColor(HLMessageTypeHelper.extractString(br), HLMessageTypeHelper.extractColor(br));
+                        m_ColorArray[i] = new PentLightColor(HLMessageTypeHelper.ExtractString(br), HLMessageTypeHelper.ExtractColor(br));
                     }
                     for (int i = 0; i < PUM_CIRC_COUNT; i++)
                     {

@@ -15,7 +15,7 @@ namespace ScreenLogicConnect
         };
 
         protected const short multicastPort = 1444;
-        private Socket searchSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        private readonly Socket searchSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
         public static async Task<List<EasyTouchUnit>> Find()
         {
@@ -33,7 +33,7 @@ namespace ScreenLogicConnect
                 if (buf != null && buf.RemoteEndPoint != null)
                 {
                     var findServerResponse = new EasyTouchUnit(buf);
-                    if (findServerResponse.isValid)
+                    if (findServerResponse.IsValid)
                     {
                         units.Add(findServerResponse);
                     }
