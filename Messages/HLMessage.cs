@@ -29,24 +29,22 @@ namespace ScreenLogicConnect.Messages
 
         public HLMessage(byte[] headerArray, byte[] dataArray)
         {
-            headerByteStream = new MemoryStream(header);
-            using (var bw = new BinaryWriter(headerByteStream))
+            if (headerArray != null)
             {
-                bw.Write(headerArray);
+                header = new byte[headerArray.Length];
+                Array.Copy(headerArray, header, headerArray.Length);
             }
-
-            this.data = new byte[dataArray.Length];
-            dataByteStream = new MemoryStream(data);
-            using (var bw = new BinaryWriter(dataByteStream))
+            if (dataArray != null)
             {
-                bw.Write(dataArray);
+                data = new byte[dataArray.Length];
+                Array.Copy(dataArray, data, dataArray.Length);
             }
 
             Decode();
         }
 
         public HLMessage(HLMessage msg)
-            : this(msg.header, msg.data)
+            : this(msg != null ? msg.header : null, msg != null ? msg.data : null)
         {
         }
 

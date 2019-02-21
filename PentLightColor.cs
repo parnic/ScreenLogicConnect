@@ -5,9 +5,9 @@ namespace ScreenLogicConnect
     public class PentLightColor
     {
         public RgbColor color { get; private set; }
-        public String name { get; private set; }
+        public string name { get; private set; }
 
-        public PentLightColor(String name, RgbColor color)
+        public PentLightColor(string name, RgbColor color)
         {
             this.name = name;
             this.color = color;

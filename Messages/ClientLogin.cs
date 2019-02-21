@@ -10,7 +10,7 @@ namespace ScreenLogicConnect.Messages
         public int m_int;
         public int m_procID;
         public int m_schema;
-        public String m_version;
+        public string m_version;
 
         public const short HLM_CLIENT_LOGIN = 27;
 

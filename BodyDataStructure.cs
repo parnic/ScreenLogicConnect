@@ -15,7 +15,7 @@ namespace ScreenLogicConnect
         public byte m_flags;
         public byte m_function;
         public byte m_interface;
-        public String m_name;
+        public string m_name;
         public byte m_nameIndex;
     }
 }

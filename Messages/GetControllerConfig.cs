@@ -22,7 +22,7 @@ namespace ScreenLogicConnect.Messages
         public byte[] m_MinSetPoint { get; private set; } = new byte[2];
         public byte[] m_PumpCircArray { get; private set; } = new byte[PUM_CIRC_COUNT];
         public int m_ShowAlarms { get; private set; }
-        public String m_genCircuitName { get; private set; }
+        public string m_genCircuitName { get; private set; }
 
         public const short HLM_POOL_GETCTLRCONFIGQ = 12532;
 

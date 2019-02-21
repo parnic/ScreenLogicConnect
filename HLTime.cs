@@ -48,7 +48,7 @@ namespace ScreenLogicConnect
             this.millisecond = millisecond;
         }
 
-        public String toString()
+        public string toString()
         {
             return "" + this.month + "/" + this.day + "/" + this.year;
         }
