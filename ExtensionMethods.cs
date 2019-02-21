@@ -56,7 +56,7 @@ namespace ScreenLogicConnect
                 }
                 else
                 {
-                    return default(TResult);
+                    return default;
                 }
             }
         }

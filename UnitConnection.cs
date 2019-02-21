@@ -42,7 +42,7 @@ namespace ScreenLogicConnect
             }
 
             Debug.WriteLine("sending login message");
-            stream.SendHLMessage(createLoginMessage(new HLEncoder(password).GetEncryptedPassword(challengeStr)));
+            stream.SendHLMessage(CreateLoginMessage(new HLEncoder(password).GetEncryptedPassword(challengeStr)));
 
             readBytes = stream.Read(recvBuf, 0, recvBuf.Length);
             Debug.WriteLine("read {0}", readBytes);
@@ -109,7 +109,7 @@ namespace ScreenLogicConnect
             return new Messages.HLMessage(headerBuffer, dataBuffer);
         }
 
-        private static string connectionMessage = "CONNECTSERVERHOST\r\n\r\n";
+        private const string connectionMessage = "CONNECTSERVERHOST\r\n\r\n";
         private byte[] CreateConnectServerSoftMessage()
         {
             using (var ms = new MemoryStream())
@@ -123,7 +123,7 @@ namespace ScreenLogicConnect
             }
         }
 
-        private Messages.HLMessage createLoginMessage(byte[] encodedPwd)
+        private Messages.HLMessage CreateLoginMessage(byte[] encodedPwd)
         {
             Messages.ClientLogin login = Messages.ClientLogin.QUERY(0);
             login.m_schema = 348;
