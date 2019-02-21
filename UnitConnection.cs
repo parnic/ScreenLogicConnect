@@ -11,7 +11,7 @@ namespace ScreenLogicConnect
     {
         TcpClient client;
 
-        public async Task ConnectTo(EasyTouchUnit unit, string password = null)
+        public async Task<bool> ConnectTo(EasyTouchUnit unit, string password = null)
         {
             if (client != null)
             {
@@ -46,6 +46,7 @@ namespace ScreenLogicConnect
 
             readBytes = stream.Read(recvBuf, 0, recvBuf.Length);
             Debug.WriteLine("read {0}", readBytes);
+            return recvBuf[2] == Messages.ClientLogin.HLM_CLIENT_LOGIN + 1;
         }
 
         public async Task<Messages.GetPoolStatus> GetPoolStatus()

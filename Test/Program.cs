@@ -55,7 +55,12 @@ namespace Test
         static async Task ConnectToUnit(ScreenLogicConnect.EasyTouchUnit server, string systemPassword = null)
         {
             var connection = new ScreenLogicConnect.UnitConnection();
-            await connection.ConnectTo(server, systemPassword);
+            if (!await connection.ConnectTo(server, systemPassword))
+            {
+                Console.WriteLine("Login failed");
+                return;
+            }
+
             var status = await connection.GetPoolStatus();
             var config = await connection.GetControllerConfig();
             var degSymbol = config.m_DegC == 1 ? "C" : "F";
