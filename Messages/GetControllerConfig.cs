@@ -36,7 +36,7 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        public GetControllerConfig(byte[] header, byte[] data)
+        public GetControllerConfig(ReadOnlySpan<byte> header, ReadOnlySpan<byte> data)
             : base(header, data)
         {
         }
@@ -46,7 +46,7 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        public override byte[] AsByteArray()
+        public override Span<byte> AsByteArray()
         {
             using (var ms = new MemoryStream())
             {

@@ -1,4 +1,6 @@
-﻿namespace ScreenLogicConnect.Messages
+﻿using System;
+
+namespace ScreenLogicConnect.Messages
 {
     public class GetMode : HLMessage
     {
@@ -14,7 +16,7 @@
         {
         }
 
-        public GetMode(byte[] header, byte[] data)
+        public GetMode(ReadOnlySpan<byte> header, ReadOnlySpan<byte> data)
             : base(header, data)
         {
         }

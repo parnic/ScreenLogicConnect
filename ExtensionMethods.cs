@@ -14,17 +14,21 @@ namespace ScreenLogicConnect
         {
             var arr = msg.AsByteArray();
             System.Diagnostics.Debug.WriteLine($"  sent {arr.Length}");
-            stream.Write(arr, 0, arr.Length);
+            stream.Write(arr);
         }
 
         public static void WritePrefixLength(this BinaryWriter bw, string val)
         {
             bw.Write(val.Length);
             bw.Write(Encoding.ASCII.GetBytes(val));
-            bw.Write(new byte[HLMessageTypeHelper.AlignToNext4Boundary(val.Length)]);
+            var boundaryBufferLen = HLMessageTypeHelper.AlignToNext4Boundary(val.Length);
+            for (int i = 0; i < boundaryBufferLen; i++)
+            {
+                bw.Write((byte)0);
+            }
         }
 
-        public static void WritePrefixLength(this BinaryWriter bw, byte[] val)
+        public static void WritePrefixLength(this BinaryWriter bw, ReadOnlySpan<byte> val)
         {
             bw.Write(val.Length);
             bw.Write(val);

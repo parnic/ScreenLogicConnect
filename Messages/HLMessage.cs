@@ -27,20 +27,23 @@ namespace ScreenLogicConnect.Messages
             }
         }
 
-        public HLMessage(byte[] headerArray, byte[] dataArray)
+        public HLMessage(ReadOnlySpan<byte> headerArray, ReadOnlySpan<byte> dataArray)
         {
             if (headerArray != null)
             {
                 header = new byte[headerArray.Length];
-                Array.Copy(headerArray, header, headerArray.Length);
+                headerArray.CopyTo(header);
             }
             if (dataArray != null)
             {
                 data = new byte[dataArray.Length];
-                Array.Copy(dataArray, data, dataArray.Length);
+                dataArray.CopyTo(data);
             }
 
-            Decode();
+            if (data != null)
+            {
+                Decode();
+            }
         }
 
         public HLMessage(HLMessage msg)
@@ -48,26 +51,29 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        public virtual byte[] AsByteArray()
+        public virtual Span<byte> AsByteArray()
         {
-            var dataLength = this.data?.Length ?? 0;
-            byte[] result = new byte[dataLength + this.header.Length];
-            using (var bw = new BinaryWriter(new MemoryStream(result)))
+            var dataLength = data?.Length ?? 0;
+            var result = new byte[dataLength + header.Length];
+            using (var ms = new MemoryStream(result))
             {
-                bw.Write(this.header, 0, 4);
-                bw.Write(dataLength);
-                if (dataLength > 0)
+                using (var bw = new BinaryWriter(ms))
                 {
-                    bw.Write(this.data);
+                    bw.Write(header, 0, 4);
+                    bw.Write(dataLength);
+                    if (dataLength > 0)
+                    {
+                        bw.Write(data);
+                    }
                 }
             }
 
             return result;
         }
 
-        public static int ExtractDataSize(byte[] data)
+        public static int ExtractDataSize(ReadOnlySpan<byte> buf)
         {
-            return BitConverter.ToInt32(data, 4);
+            return BitConverter.ToInt32(buf.Slice(4));
         }
 
         public short GetMessageID()
@@ -80,7 +86,7 @@ namespace ScreenLogicConnect.Messages
             return BitConverter.ToInt16(header, 0);
         }
 
-        public string GetMessageIDasString()
+        public string GetMessageIDAsString()
         {
             return GetMessageID().ToString();
         }

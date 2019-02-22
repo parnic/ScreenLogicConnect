@@ -5,7 +5,7 @@ namespace ScreenLogicConnect.Messages
 {
     public class ClientLogin : HLMessage
     {
-        public byte[] m_byteArray;
+        public byte[] m_password;
         public int m_connectionType;
         public int m_int;
         public int m_procID;
@@ -24,7 +24,7 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        public override byte[] AsByteArray()
+        public override Span<byte> AsByteArray()
         {
             using (var ms = new MemoryStream())
             {
@@ -33,7 +33,7 @@ namespace ScreenLogicConnect.Messages
                     bw.Write(m_schema);
                     bw.Write(m_connectionType);
                     bw.WritePrefixLength(m_version);
-                    bw.WritePrefixLength(m_byteArray);
+                    bw.WritePrefixLength(m_password);
                     bw.Write(m_procID);
                 }
 

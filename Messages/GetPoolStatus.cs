@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 
 namespace ScreenLogicConnect.Messages
@@ -40,7 +41,7 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        public GetPoolStatus(byte[] header, byte[] data)
+        public GetPoolStatus(ReadOnlySpan<byte> header, ReadOnlySpan<byte> data)
                 : base(header, data)
         {
         }
@@ -50,7 +51,7 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        public override byte[] AsByteArray()
+        public override Span<byte> AsByteArray()
         {
             using (var ms = new MemoryStream())
             {
@@ -124,27 +125,27 @@ namespace ScreenLogicConnect.Messages
 
         public bool isDeviceready()
         {
-            return this.m_Ok == 1;
+            return m_Ok == 1;
         }
 
         public bool isDeviceSync()
         {
-            return this.m_Ok == 2;
+            return m_Ok == 2;
         }
 
         public bool isDeviceServiceMode()
         {
-            return this.m_Ok == 3;
+            return m_Ok == 3;
         }
 
         public bool isSpaActive()
         {
-            return this.circuitArray?.Any(x => x.id == CircuitUpdateDataStructure.SPA_CIRCUIT_ID && x.state == 1) ?? false;
+            return circuitArray?.Any(x => x.id == CircuitUpdateDataStructure.SPA_CIRCUIT_ID && x.state == 1) ?? false;
         }
 
         public bool isPoolActive()
         {
-            return this.circuitArray?.Any(x => x.id == CircuitUpdateDataStructure.POOL_CIRCUIT_ID && x.state == 1) ?? false;
+            return circuitArray?.Any(x => x.id == CircuitUpdateDataStructure.POOL_CIRCUIT_ID && x.state == 1) ?? false;
         }
     }
 }

@@ -35,7 +35,7 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        public override byte[] AsByteArray()
+        public override Span<byte> AsByteArray()
         {
             using (var ms = new MemoryStream())
             {

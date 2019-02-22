@@ -28,24 +28,22 @@ namespace ScreenLogicConnect
             Debug.WriteLine("sending challenge string");
             stream.SendHLMessage(Messages.ChallengeString.QUERY(0));
 
-            var recvBuf = new byte[1024];
-            var readBytes = stream.Read(recvBuf, 0, recvBuf.Length);
-            Debug.WriteLine("read {0}", readBytes);
-            string challengeStr = null;
-            using (var ms = new MemoryStream(recvBuf))
-            {
-                using (var br = new BinaryReader(ms))
-                {
-                    br.ReadBytes(8);
-                    challengeStr = Messages.HLMessageTypeHelper.ExtractString(br);
-                }
-            }
+            var recvBuf = new byte[8];
+            var readBytes = await stream.ReadAsync(recvBuf, 0, recvBuf.Length);
+            Debug.WriteLine("read {0} bytes (header)", readBytes);
+
+            var recvBody = new byte[Messages.HLMessage.ExtractDataSize(recvBuf)];
+            readBytes = await stream.ReadAsync(recvBody, 0, recvBody.Length);
+            Debug.WriteLine("read {0} bytes (body)", readBytes);
+            string challengeStr = Messages.HLMessageTypeHelper.ExtractString(recvBody);
 
             Debug.WriteLine("sending login message");
             stream.SendHLMessage(CreateLoginMessage(new HLEncoder(password).GetEncryptedPassword(challengeStr)));
 
-            readBytes = stream.Read(recvBuf, 0, recvBuf.Length);
+            readBytes = await stream.ReadAsync(recvBuf, 0, recvBuf.Length);
             Debug.WriteLine("read {0}", readBytes);
+            recvBody = new byte[Messages.HLMessage.ExtractDataSize(recvBuf)];
+            await stream.ReadAsync(recvBody, 0, recvBody.Length);
             return recvBuf[2] == Messages.ClientLogin.HLM_CLIENT_LOGIN + 1;
         }
 
@@ -88,7 +86,7 @@ namespace ScreenLogicConnect
             }
 
             int msgDataSize = Messages.HLMessage.ExtractDataSize(headerBuffer);
-            if (msgDataSize <= 0 || msgDataSize >= 100000)
+            if (msgDataSize <= 0 || msgDataSize >= 100_000)
             {
                 return null;
             }
@@ -97,7 +95,7 @@ namespace ScreenLogicConnect
             bytesRead = 0;
             while (bytesRead < msgDataSize)
             {
-                bytesRead += await ns.ReadAsync((byte[])(Array)dataBuffer, bytesRead, msgDataSize - bytesRead);
+                bytesRead += await ns.ReadAsync(dataBuffer, bytesRead, msgDataSize - bytesRead);
 
                 if (bytesRead < 0)
                 {
@@ -113,18 +111,10 @@ namespace ScreenLogicConnect
         private const string connectionMessage = "CONNECTSERVERHOST\r\n\r\n";
         private byte[] CreateConnectServerSoftMessage()
         {
-            using (var ms = new MemoryStream())
-            {
-                using (var bw = new BinaryWriter(ms))
-                {
-                    bw.Write(Encoding.ASCII.GetBytes(connectionMessage));
-                }
-
-                return ms.ToArray();
-            }
+            return Encoding.ASCII.GetBytes(connectionMessage);
         }
 
-        private Messages.HLMessage CreateLoginMessage(byte[] encodedPwd)
+        private Messages.HLMessage CreateLoginMessage(ReadOnlySpan<byte> encodedPwd)
         {
             Messages.ClientLogin login = Messages.ClientLogin.QUERY(0);
             login.m_schema = 348;
@@ -132,19 +122,22 @@ namespace ScreenLogicConnect
             login.m_version = "ScreenLogicConnect library";
             login.m_procID = 2;
 
-            if (encodedPwd == null)
+            if (encodedPwd != null)
             {
-                encodedPwd = new byte[16];
-            }
-
-            if (encodedPwd.Length > 16)
-            {
-                login.m_byteArray = new byte[16];
-                Array.Copy(encodedPwd, login.m_byteArray, 16);
+                if (encodedPwd.Length > 16)
+                {
+                    login.m_password = new byte[16];
+                    encodedPwd.Slice(0, 16).CopyTo(login.m_password);
+                }
+                else
+                {
+                    login.m_password = new byte[encodedPwd.Length];
+                    encodedPwd.CopyTo(login.m_password);
+                }
             }
             else
             {
-                login.m_byteArray = encodedPwd;
+                login.m_password = new byte[16];
             }
 
             return login;

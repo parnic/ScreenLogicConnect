@@ -18,6 +18,19 @@ namespace ScreenLogicConnect.Messages
             return str;
         }
 
+        public static string ExtractString(ReadOnlySpan<byte> buf)
+        {
+            var len = BitConverter.ToInt32(buf);
+            int startIdx = sizeof(int);
+            Span<char> chars = stackalloc char[len];
+            for (int chIdx = 0; chIdx < len; chIdx++)
+            {
+                chars[chIdx] = (char)buf[startIdx + chIdx];
+            }
+
+            return new string(chars);
+        }
+
         public static RgbColor ExtractColor(BinaryReader br)
         {
             return new RgbColor(

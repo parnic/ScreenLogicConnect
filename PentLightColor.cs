@@ -7,10 +7,10 @@ namespace ScreenLogicConnect
         public RgbColor color { get; private set; }
         public string name { get; private set; }
 
-        public PentLightColor(string name, RgbColor color)
+        public PentLightColor(string inName, RgbColor inColor)
         {
-            this.name = name;
-            this.color = color;
+            name = inName;
+            color = inColor;
         }
 
         public override string ToString()

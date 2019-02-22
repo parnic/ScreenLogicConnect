@@ -36,26 +36,26 @@ namespace ScreenLogicConnect
             }
         }
 
-        public HLTime(short year, short month, short dayOfWeek, short day, short hour, short minute, short second, short millisecond)
+        public HLTime(short inYear, short inMonth, short inDayOfWeek, short inDay, short inHour, short inMinute, short inSecond, short inMillisecond)
         {
-            this.year = year;
-            this.month = month;
-            this.dayOfWeek = dayOfWeek;
-            this.day = day;
-            this.hour = hour;
-            this.minute = minute;
-            this.second = second;
-            this.millisecond = millisecond;
+            year = inYear;
+            month = inMonth;
+            dayOfWeek = inDayOfWeek;
+            day = inDay;
+            hour = inHour;
+            minute = inMinute;
+            second = inSecond;
+            millisecond = inMillisecond;
         }
 
         public string toString()
         {
-            return "" + this.month + "/" + this.day + "/" + this.year;
+            return "" + month + "/" + day + "/" + year;
         }
 
         public DateTime toDate()
         {
-            return new DateTime(year: (this.year - 2000) + 100, month: month - 1, day: day, hour: hour, minute: minute, second: second);
+            return new DateTime(year: (year - 2000) + 100, month: month - 1, day: day, hour: hour, minute: minute, second: second);
         }
 
         public long toMilliseconds()

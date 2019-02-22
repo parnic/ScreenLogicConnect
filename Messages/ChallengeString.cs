@@ -19,7 +19,7 @@ namespace ScreenLogicConnect.Messages
         {
         }
 
-        public ChallengeString(byte[] header, byte[] data)
+        public ChallengeString(ReadOnlySpan<byte> header, ReadOnlySpan<byte> data)
                 : base(header, data)
         {
         }
@@ -31,13 +31,7 @@ namespace ScreenLogicConnect.Messages
 
         protected override void Decode()
         {
-            using (var ms = new MemoryStream(data))
-            {
-                using (var br = new BinaryReader(dataByteStream))
-                {
-                    ChallengeStr = HLMessageTypeHelper.ExtractString(br);
-                }
-            }
+            ChallengeStr = HLMessageTypeHelper.ExtractString(data);
         }
     }
 }
