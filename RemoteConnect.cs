@@ -12,7 +12,7 @@ namespace ScreenLogicConnect
         {
             using (var client = new TcpClient())
             {
-                client.Connect(ServerDispatcherURL, ServerDispatcherPort);
+                await client.ConnectAsync(ServerDispatcherURL, ServerDispatcherPort);
                 var ns = client.GetStream();
                 ns.SendHLMessage(Messages.GetGatewayData.QUERY(systemName));
                 return new EasyTouchUnit(new Messages.GetGatewayData(await UnitConnection.GetMessage(ns)));
