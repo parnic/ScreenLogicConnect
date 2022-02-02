@@ -1,21 +1,18 @@
-﻿using System;
+﻿namespace ScreenLogicConnect;
 
-namespace ScreenLogicConnect
+public class PentLightColor
 {
-    public class PentLightColor
+    public RgbColor Color { get; private set; }
+    public string Name { get; private set; }
+
+    public PentLightColor(string inName, RgbColor inColor)
     {
-        public RgbColor color { get; private set; }
-        public string name { get; private set; }
+        Name = inName;
+        Color = inColor;
+    }
 
-        public PentLightColor(string inName, RgbColor inColor)
-        {
-            name = inName;
-            color = inColor;
-        }
-
-        public override string ToString()
-        {
-            return $"Name: {name}, color: {color}";
-        }
+    public override string ToString()
+    {
+        return $"Name: {Name}, color: {Color}";
     }
 }

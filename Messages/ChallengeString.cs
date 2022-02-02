@@ -1,37 +1,33 @@
-﻿using System;
-using System.IO;
+﻿namespace ScreenLogicConnect.Messages;
 
-namespace ScreenLogicConnect.Messages
+public class ChallengeString : HLMessage
 {
-    public class ChallengeString : HLMessage
+    public string? ChallengeStr { get; private set; }
+
+    public const short HLM_CLIENT_CHALLENGE = 14;
+
+    public static ChallengeString QUERY(short senderID)
     {
-        public string? ChallengeStr { get; private set; }
+        return new ChallengeString(senderID, HLM_CLIENT_CHALLENGE);
+    }
 
-        public const short HLM_CLIENT_CHALLENGE = 14;
+    private ChallengeString(short senderID, short msgID)
+            : base(senderID, msgID)
+    {
+    }
 
-        public static ChallengeString QUERY(short senderID)
-        {
-            return new ChallengeString(senderID, HLM_CLIENT_CHALLENGE);
-        }
+    public ChallengeString(ReadOnlySpan<byte> header, ReadOnlySpan<byte> data)
+            : base(header, data)
+    {
+    }
 
-        private ChallengeString(short senderID, short msgID)
-                : base(senderID, msgID)
-        {
-        }
+    public ChallengeString(HLMessage msg)
+            : base(msg)
+    {
+    }
 
-        public ChallengeString(ReadOnlySpan<byte> header, ReadOnlySpan<byte> data)
-                : base(header, data)
-        {
-        }
-
-        public ChallengeString(HLMessage msg)
-                : base(msg)
-        {
-        }
-
-        protected override void Decode()
-        {
-            ChallengeStr = HLMessageTypeHelper.ExtractString(data);
-        }
+    protected override void Decode()
+    {
+        ChallengeStr = HLMessageTypeHelper.ExtractString(data);
     }
 }
