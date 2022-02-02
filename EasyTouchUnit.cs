@@ -13,28 +13,33 @@ public class EasyTouchUnit
     public bool IsValid { get; private set; }
     public short Port { get; private set; }
 
+    /// <summary>
+    /// Creates a new EasyTouchUnit if the message contains valid unit information and null otherwise.
+    /// </summary>
+    /// <param name="result">The message received from a connection</param>
+    /// <returns>The EasyTouchUnit if the message is valid</returns>
     public static EasyTouchUnit? Create(UdpReceiveResult result)
     {
-        try
+        EasyTouchUnit unit = new(result);
+        if (unit.IsValid)
         {
-            using var ms = new MemoryStream(result.Buffer);
-            using var br = new BinaryReader(ms);
-            var unitType = br.ReadInt32();
-            if (unitType == 2)
-            {
-                return new EasyTouchUnit(result);
-            }
+            return unit;
         }
-        catch (Exception) { }
 
         return null;
     }
 
+    /// <summary>
+    /// Creates a new EasyTouchUnit if the message contains valid unit information and null otherwise.
+    /// </summary>
+    /// <param name="data">The message received from a remote connection request</param>
+    /// <returns>The EasyTouchUnit if the message is valid</returns>
     public static EasyTouchUnit? Create(Messages.GetGatewayData data)
     {
-        if (data.GatewayFound && data.PortOpen)
+        EasyTouchUnit unit = new(data);
+        if (unit.IsValid)
         {
-            return new EasyTouchUnit(data);
+            return unit;
         }
 
         return null;
