@@ -23,12 +23,11 @@ public class UnitConnection : IDisposable
         client = new TcpClient();
         await client.ConnectAsync(unit.IPAddress, unit.Port);
 
-        var connMsg = CreateConnectServerSoftMessage();
         var stream = client.GetStream();
-        stream.Write(connMsg, 0, connMsg.Length);
+        stream.Write(ConnectionMessageBytes);
 
         Debug.WriteLine("sending challenge string");
-        stream.SendHLMessage(Messages.ChallengeString.QUERY(0));
+        stream.SendHLMessage(new Messages.ChallengeString());
 
         var recvBuf = new byte[8];
         var readBytes = await stream.ReadAsync(recvBuf);
@@ -54,67 +53,28 @@ public class UnitConnection : IDisposable
         {
             await stream.ReadAsync(recvBody);
         }
-        return recvBuf[2] == Messages.ClientLogin.HLM_CLIENT_LOGIN + 1;
+        return recvBuf[2] == Messages.ClientLogin.LoginAnswerId;
     }
 
-    public async Task<Messages.GetPoolStatus?> GetPoolStatus()
+    public async Task<Messages.GetPoolStatus?> GetPoolStatus(short senderId = 0) => await GetResponse<Messages.GetPoolStatus>(senderId);
+    public async Task<Messages.GetControllerConfig?> GetControllerConfig(short senderId = 0) => await GetResponse<Messages.GetControllerConfig>(senderId);
+    public async Task<Messages.GetMode?> GetMode(short senderId = 0) => await GetResponse<Messages.GetMode>(senderId);
+
+    private async Task<T?> GetResponse<T>(short senderId) where T : Messages.HLMessage, new()
     {
         if (client == null)
         {
-            return null;
+            return default;
         }
 
         Debug.WriteLine("sending status message");
-        client.GetStream().SendHLMessage(Messages.GetPoolStatus.QUERY(0));
-
-        var msg = await GetMessage(client.GetStream());
-        if (msg == null)
-        {
-            return null;
-        }
-
-        return new Messages.GetPoolStatus(msg);
+        T msg = new();
+        msg.Encode(senderId);
+        client.GetStream().SendHLMessage(msg);
+        return await BuildMessageFromStream<T>(client.GetStream());
     }
 
-    public async Task<Messages.GetControllerConfig?> GetControllerConfig()
-    {
-        if (client == null)
-        {
-            return null;
-        }
-
-        Debug.WriteLine("sending controller config message");
-        client.GetStream().SendHLMessage(Messages.GetControllerConfig.QUERY(0));
-
-        var msg = await GetMessage(client.GetStream());
-        if (msg == null)
-        {
-            return null;
-        }
-
-        return new Messages.GetControllerConfig(msg);
-    }
-
-    public async Task<Messages.GetMode?> GetMode()
-    {
-        if (client == null)
-        {
-            return null;
-        }
-
-        Debug.WriteLine("sending get-mode message");
-        client.GetStream().SendHLMessage(Messages.GetMode.QUERY(0));
-
-        var msg = await GetMessage(client.GetStream());
-        if (msg == null)
-        {
-            return null;
-        }
-
-        return new Messages.GetMode(msg);
-    }
-
-    public static async Task<Messages.HLMessage?> GetMessage(NetworkStream ns)
+    internal static async Task<T?> BuildMessageFromStream<T>(NetworkStream ns) where T : Messages.HLMessage, new()
     {
         int bytesRead = 0;
         byte[] headerBuffer = new byte[8];
@@ -151,39 +111,38 @@ public class UnitConnection : IDisposable
 
         Debug.WriteLine($"read {headerBuffer.Length + dataBuffer.Length} bytes of message data ({headerBuffer.Length} header, {dataBuffer.Length} data)");
 
-        return new Messages.HLMessage(headerBuffer, dataBuffer);
+        T msg = new();
+        msg.ParseData(headerBuffer, dataBuffer);
+        return msg;
     }
 
     private const string connectionMessage = "CONNECTSERVERHOST\r\n\r\n";
-    private static byte[] CreateConnectServerSoftMessage()
-    {
-        return Encoding.ASCII.GetBytes(connectionMessage);
-    }
+    private static ReadOnlySpan<byte> ConnectionMessageBytes => Encoding.ASCII.GetBytes(connectionMessage).AsSpan();
 
     private static Messages.HLMessage CreateLoginMessage(ReadOnlySpan<byte> encodedPwd)
     {
-        Messages.ClientLogin login = Messages.ClientLogin.QUERY(0);
-        login.m_schema = 348;
-        login.m_connectionType = 0;
-        login.m_version = "ScreenLogicConnect library";
-        login.m_procID = 2;
+        Messages.ClientLogin login = new(0);
+        login.Schema = 348;
+        login.ConnectionType = 0;
+        login.Version = "ScreenLogicConnect library";
+        login.ProcID = 2;
 
         if (encodedPwd != null)
         {
             if (encodedPwd.Length > 16)
             {
-                login.m_password = new byte[16];
-                encodedPwd[..16].CopyTo(login.m_password);
+                login.Password = new byte[16];
+                encodedPwd[..16].CopyTo(login.Password);
             }
             else
             {
-                login.m_password = new byte[encodedPwd.Length];
-                encodedPwd.CopyTo(login.m_password);
+                login.Password = new byte[encodedPwd.Length];
+                encodedPwd.CopyTo(login.Password);
             }
         }
         else
         {
-            login.m_password = new byte[16];
+            login.Password = new byte[16];
         }
 
         return login;
@@ -192,10 +151,6 @@ public class UnitConnection : IDisposable
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-
-        if (client != null)
-        {
-            client.Dispose();
-        }
+        client?.Dispose();
     }
 }

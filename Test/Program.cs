@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Test
+﻿namespace Test
 {
     class Program
     {
@@ -48,7 +44,7 @@ namespace Test
             }
             else
             {
-                Console.WriteLine("Unable to connect to remote unit.");
+                Console.WriteLine($"Unable to connect to remote unit {systemName}");
             }
         }
 

@@ -21,25 +21,14 @@ public class GetControllerConfig : HLMessage
     public int ShowAlarms { get; private set; }
     public string? GenCircuitName { get; private set; }
 
-    public const short HLM_POOL_GETCTLRCONFIGQ = 12532;
+    internal override short QueryId => 12532;
 
-    public static GetControllerConfig QUERY(short senderID)
-    {
-        return new GetControllerConfig(senderID, HLM_POOL_GETCTLRCONFIGQ);
-    }
-
-    private GetControllerConfig(short senderID, short msgID)
-        : base(senderID, msgID)
+    internal GetControllerConfig(short senderID = 0)
+        : base(senderID)
     {
     }
 
-    public GetControllerConfig(ReadOnlySpan<byte> header, ReadOnlySpan<byte> data)
-        : base(header, data)
-    {
-    }
-
-    public GetControllerConfig(HLMessage msg)
-        : base(msg)
+    public GetControllerConfig()
     {
     }
 
@@ -86,19 +75,19 @@ public class GetControllerConfig : HLMessage
         {
             BodyArray[i] = new BodyDataStructure()
             {
-                m_circuitID = br.ReadInt32(),
-                m_name = HLMessageTypeHelper.ExtractString(br),
-                m_nameIndex = br.ReadByte(),
-                m_function = br.ReadByte(),
-                m_interface = br.ReadByte(),
-                m_flags = br.ReadByte(),
-                m_colorSet = br.ReadByte(),
-                m_colorPos = br.ReadByte(),
-                m_colorStagger = br.ReadByte(),
-                m_deviceID = br.ReadByte(),
-                m_dfaultRT = br.ReadInt16(),
-                m_Pad1 = br.ReadByte(),
-                m_Pad2 = br.ReadByte(),
+                CircuitID = br.ReadInt32(),
+                Name = HLMessageTypeHelper.ExtractString(br),
+                NameIndex = br.ReadByte(),
+                Function = br.ReadByte(),
+                Interface = br.ReadByte(),
+                Flags = br.ReadByte(),
+                ColorSet = br.ReadByte(),
+                ColorPos = br.ReadByte(),
+                ColorStagger = br.ReadByte(),
+                DeviceID = br.ReadByte(),
+                DfaultRT = br.ReadInt16(),
+                Pad1 = br.ReadByte(),
+                Pad2 = br.ReadByte(),
             };
         }
         ColorCount = br.ReadInt32();

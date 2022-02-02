@@ -10,23 +10,19 @@ public class GetGatewayData : HLMessage
     public bool PortOpen;
     public bool RelayOn;
 
-    public const short HLM_GETGATEWAYDATA = 18003;
+    internal override short QueryId => 18003;
 
-    public static GetGatewayData QUERY(string systemName, short senderID = 0)
-    {
-        return new GetGatewayData(senderID, HLM_GETGATEWAYDATA)
-        {
-            GatewayName = systemName,
-        };
-    }
-
-    public GetGatewayData(short senderID, short msgID)
-            : base(senderID, msgID)
+    public GetGatewayData(short senderID = 0)
+            : base(senderID)
     {
     }
 
     public GetGatewayData(HLMessage msg)
         : base(msg)
+    {
+    }
+
+    public GetGatewayData()
     {
     }
 

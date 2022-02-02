@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Test": {
+      "commandName": "Project"
+    },
+    "Test remote connection": {
+      "commandName": "Project",
+      "commandLineArgs": "\"Pentair: 12-34-56\" \"1234\""
+    }
+  }
+}

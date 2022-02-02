@@ -2,22 +2,24 @@
 
 public class ClientLogin : HLMessage
 {
-    public byte[]? m_password;
-    public int m_connectionType;
-    public int m_int;
-    public int m_procID;
-    public int m_schema;
-    public string m_version = "ScreenLogicConnect library";
+    public byte[]? Password;
+    public int ConnectionType;
+    public int Int;
+    public int ProcID;
+    public int Schema;
+    public string Version = "ScreenLogicConnect library";
 
-    public const short HLM_CLIENT_LOGIN = 27;
+    private const short LoginQueryId = 27;
+    internal override short QueryId => LoginQueryId;
 
-    public static ClientLogin QUERY(short senderID)
+    internal const short LoginAnswerId = LoginQueryId + 1;
+
+    public ClientLogin()
     {
-        return new ClientLogin(senderID, HLM_CLIENT_LOGIN);
     }
 
-    public ClientLogin(short senderID, short msgID)
-            : base(senderID, msgID)
+    internal ClientLogin(short senderID = 0)
+            : base(senderID)
     {
     }
 
@@ -27,11 +29,11 @@ public class ClientLogin : HLMessage
         {
             using (var bw = new BinaryWriter(ms))
             {
-                bw.Write(m_schema);
-                bw.Write(m_connectionType);
-                bw.WritePrefixLength(m_version);
-                bw.WritePrefixLength(m_password);
-                bw.Write(m_procID);
+                bw.Write(Schema);
+                bw.Write(ConnectionType);
+                bw.WritePrefixLength(Version);
+                bw.WritePrefixLength(Password);
+                bw.Write(ProcID);
             }
 
             data = ms.ToArray();

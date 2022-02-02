@@ -6,7 +6,7 @@ namespace ScreenLogicConnect;
 
 static class ExtensionMethods
 {
-    public static void SendHLMessage(this NetworkStream stream, Messages.HLMessage msg)
+    public static void SendHLMessage(this NetworkStream stream, HLMessage msg)
     {
         var arr = msg.AsByteArray();
         System.Diagnostics.Debug.WriteLine($"  sent {arr.Length}");

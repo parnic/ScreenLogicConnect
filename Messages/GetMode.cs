@@ -2,25 +2,15 @@
 
 public class GetMode : HLMessage
 {
-    public const short HLM_MODE_GETMODEQ = 110;
+    internal override short QueryId => 110;
 
-    public static GetMode QUERY(short senderID)
+    public GetMode()
     {
-        return new GetMode(senderID, (short)HLM_MODE_GETMODEQ);
+
     }
 
-    private GetMode(short senderID, short msgID)
-        : base(senderID, msgID)
-    {
-    }
-
-    public GetMode(ReadOnlySpan<byte> header, ReadOnlySpan<byte> data)
-        : base(header, data)
-    {
-    }
-
-    public GetMode(HLMessage msg)
-        : base(msg)
+    internal GetMode(short senderID = 0)
+        : base(senderID)
     {
     }
 }

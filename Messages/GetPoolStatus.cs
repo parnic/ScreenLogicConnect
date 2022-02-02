@@ -25,25 +25,14 @@ public class GetPoolStatus : HLMessage
     public int[] SetPoint { get; private set; } = new int[2];
     public byte SpaDelay { get; private set; }
 
-    public const short HLM_POOL_GETSTATUSQ = 12526;
+    internal override short QueryId => 12526;
 
-    public static GetPoolStatus QUERY(short senderID)
-    {
-        return new GetPoolStatus(senderID, HLM_POOL_GETSTATUSQ);
-    }
-
-    private GetPoolStatus(short senderID, short msgID)
-            : base(senderID, msgID)
+    internal GetPoolStatus(short senderID = 0)
+            : base(senderID)
     {
     }
 
-    public GetPoolStatus(ReadOnlySpan<byte> header, ReadOnlySpan<byte> data)
-            : base(header, data)
-    {
-    }
-
-    public GetPoolStatus(HLMessage msg)
-            : base(msg)
+    public GetPoolStatus()
     {
     }
 

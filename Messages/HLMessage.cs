@@ -1,6 +1,6 @@
 ﻿namespace ScreenLogicConnect.Messages;
 
-public class HLMessage
+public abstract class HLMessage
 {
     public const int HEADER_SIZE = 8;
 
@@ -10,19 +10,27 @@ public class HLMessage
     protected MemoryStream? headerByteStream;
     protected int startIndex = 0;
 
-    public HLMessage(short sender, short id)
+    internal HLMessage()
     {
-        headerByteStream = new MemoryStream(header);
-        using var mw = new BinaryWriter(headerByteStream);
-        mw.Write(sender);
-        mw.Write(id);
-        while (headerByteStream.Position < headerByteStream.Length)
-        {
-            mw.Write((byte)0xff);
-        }
+
+    }
+
+    public HLMessage(short sender)
+    {
+        Encode(sender);
     }
 
     public HLMessage(ReadOnlySpan<byte> headerArray, ReadOnlySpan<byte> dataArray)
+    {
+        ParseData(headerArray, dataArray);
+    }
+
+    public HLMessage(HLMessage msg)
+        : this(msg?.header, msg?.data)
+    {
+    }
+
+    public void ParseData(ReadOnlySpan<byte> headerArray, ReadOnlySpan<byte> dataArray)
     {
         if (headerArray != null)
         {
@@ -41,9 +49,19 @@ public class HLMessage
         }
     }
 
-    public HLMessage(HLMessage msg)
-        : this(msg?.header, msg?.data)
+    internal abstract short QueryId { get; }
+    internal short AnswerId => (short)(QueryId + 1);
+
+    internal void Encode(short senderId = 0)
     {
+        headerByteStream = new MemoryStream(header);
+        using var mw = new BinaryWriter(headerByteStream);
+        mw.Write(senderId);
+        mw.Write(QueryId);
+        while (headerByteStream.Position < headerByteStream.Length)
+        {
+            mw.Write((byte)0xff);
+        }
     }
 
     public virtual Span<byte> AsByteArray()
@@ -64,25 +82,11 @@ public class HLMessage
         return result;
     }
 
-    public static int ExtractDataSize(ReadOnlySpan<byte> buf)
-    {
-        return BitConverter.ToInt32(buf[4..]);
-    }
+    public static int ExtractDataSize(ReadOnlySpan<byte> buf) => BitConverter.ToInt32(buf[4..]);
 
-    public short GetMessageID()
-    {
-        return BitConverter.ToInt16(header, 2);
-    }
+    public short MessageId => BitConverter.ToInt16(header, 2);
 
-    public short GetMessageSender()
-    {
-        return BitConverter.ToInt16(header, 0);
-    }
-
-    public string GetMessageIDAsString()
-    {
-        return GetMessageID().ToString();
-    }
+    public short SenderId => BitConverter.ToInt16(header, 0);
 
     protected virtual void Decode()
     {
