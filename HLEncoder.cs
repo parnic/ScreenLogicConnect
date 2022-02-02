@@ -25,7 +25,7 @@ namespace ScreenLogicConnect
         private bool bKeyInit;
         int iROUNDS;
 
-        public HLEncoder(string pwd)
+        public HLEncoder(string? pwd)
         {
             if (!string.IsNullOrEmpty(pwd))
             {

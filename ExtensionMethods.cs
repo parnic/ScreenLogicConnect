@@ -46,12 +46,10 @@ namespace ScreenLogicConnect
             bw.Write(hlTime.millisecond);
         }
 
-        public static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)
+        public static async Task<TResult?> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout) where TResult : notnull
         {
-
             using (var timeoutCancellationTokenSource = new CancellationTokenSource())
             {
-
                 var completedTask = await Task.WhenAny(task, Task.Delay(timeout, timeoutCancellationTokenSource.Token));
                 if (completedTask == task)
                 {

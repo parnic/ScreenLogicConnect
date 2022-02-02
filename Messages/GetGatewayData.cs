@@ -7,10 +7,10 @@ namespace ScreenLogicConnect.Messages
 {
     public class GetGatewayData : HLMessage
     {
-        public string GatewayName;
+        public string? GatewayName;
         public bool GatewayFound;
         public bool LicenseOK;
-        public string IPAddr;
+        public string? IPAddr;
         public short Port;
         public bool PortOpen;
         public bool RelayOn;
@@ -37,15 +37,18 @@ namespace ScreenLogicConnect.Messages
 
         public override Span<byte> AsByteArray()
         {
-            using (var ms = new MemoryStream())
+            if (!string.IsNullOrEmpty(GatewayName))
             {
-                using (var bw = new BinaryWriter(ms))
+                using (var ms = new MemoryStream())
                 {
-                    bw.WritePrefixLength(GatewayName);
-                    bw.WritePrefixLength(GatewayName);
-                }
+                    using (var bw = new BinaryWriter(ms))
+                    {
+                        bw.WritePrefixLength(GatewayName);
+                        bw.WritePrefixLength(GatewayName);
+                    }
 
-                data = ms.ToArray();
+                    data = ms.ToArray();
+                }
             }
 
             return base.AsByteArray();
@@ -53,18 +56,20 @@ namespace ScreenLogicConnect.Messages
 
         protected override void Decode()
         {
-            using (var ms = new MemoryStream(data))
+            if (data == null)
             {
-                using (var br = new BinaryReader(ms))
-                {
-                    GatewayFound = br.ReadBoolean();
-                    LicenseOK = br.ReadBoolean();
-                    IPAddr = HLMessageTypeHelper.ExtractString(br);
-                    Port = br.ReadInt16();
-                    PortOpen = br.ReadBoolean();
-                    RelayOn = br.ReadBoolean();
-                }
+                return;
             }
+
+            using var ms = new MemoryStream(data);
+            using var br = new BinaryReader(ms);
+
+            GatewayFound = br.ReadBoolean();
+            LicenseOK = br.ReadBoolean();
+            IPAddr = HLMessageTypeHelper.ExtractString(br);
+            Port = br.ReadInt16();
+            PortOpen = br.ReadBoolean();
+            RelayOn = br.ReadBoolean();
         }
     }
 }

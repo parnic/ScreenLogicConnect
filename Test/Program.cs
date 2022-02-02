@@ -42,7 +42,7 @@ namespace Test
         static async Task DoRemoteConnect(string systemName, string systemPassword)
         {
             var unit = await ScreenLogicConnect.RemoteConnect.GetGatewayInfo(systemName);
-            if (unit.IsValid)
+            if (unit?.IsValid == true)
             {
                 await ConnectToUnit(unit, systemPassword);
             }
@@ -52,7 +52,7 @@ namespace Test
             }
         }
 
-        static async Task ConnectToUnit(ScreenLogicConnect.EasyTouchUnit server, string systemPassword = null)
+        static async Task ConnectToUnit(ScreenLogicConnect.EasyTouchUnit server, string? systemPassword = null)
         {
             var connection = new ScreenLogicConnect.UnitConnection();
             if (!await connection.ConnectTo(server, systemPassword))
@@ -62,7 +62,19 @@ namespace Test
             }
 
             var status = await connection.GetPoolStatus();
+            if (status == null)
+            {
+                Console.WriteLine("Unable to get pool status.");
+                return;
+            }
+
             var config = await connection.GetControllerConfig();
+            if (config == null)
+            {
+                Console.WriteLine("Unable to get controller config.");
+                return;
+            }
+
             var degSymbol = config.m_DegC == 1 ? "C" : "F";
             Console.WriteLine($"Air temp: {status.m_AirTemp} degrees {degSymbol}");
             var currTempList = status.m_CurrentTemp;

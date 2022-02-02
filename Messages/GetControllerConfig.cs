@@ -7,10 +7,10 @@ namespace ScreenLogicConnect.Messages
     {
         private const int PUM_CIRC_COUNT = 8;
 
-        public BodyDataStructure[] bodyArray { get; private set; }
+        public BodyDataStructure[]? bodyArray { get; private set; }
         public int colorCount { get; private set; }
         public int m_CircuitCount { get; private set; }
-        public PentLightColor[] m_ColorArray { get; private set; }
+        public PentLightColor[]? m_ColorArray { get; private set; }
         public byte m_ControllerData { get; private set; }
         public int m_ControllerID { get; private set; }
         public byte m_ControllerType { get; private set; }
@@ -22,7 +22,7 @@ namespace ScreenLogicConnect.Messages
         public byte[] m_MinSetPoint { get; private set; } = new byte[2];
         public byte[] m_PumpCircArray { get; private set; } = new byte[PUM_CIRC_COUNT];
         public int m_ShowAlarms { get; private set; }
-        public string m_genCircuitName { get; private set; }
+        public string? m_genCircuitName { get; private set; }
 
         public const short HLM_POOL_GETCTLRCONFIGQ = 12532;
 
@@ -64,6 +64,11 @@ namespace ScreenLogicConnect.Messages
 
         protected override void Decode()
         {
+            if (data == null)
+            {
+                return;
+            }
+
             using (var ms = new MemoryStream(data))
             {
                 using (var br = new BinaryReader(ms))

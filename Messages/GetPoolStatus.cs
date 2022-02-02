@@ -6,7 +6,7 @@ namespace ScreenLogicConnect.Messages
 {
     public class GetPoolStatus : HLMessage
     {
-        public CircuitUpdateDataStructure[] circuitArray { get; private set; }
+        public CircuitUpdateDataStructure[]? circuitArray { get; private set; }
         public int m_AirTemp { get; private set; }
         public int m_Alarms { get; private set; }
         public int m_BodiesCount { get; private set; }
@@ -68,6 +68,11 @@ namespace ScreenLogicConnect.Messages
 
         protected override void Decode()
         {
+            if (data == null)
+            {
+                return;
+            }
+
             using (var ms = new MemoryStream(data))
             {
                 using (var br = new BinaryReader(ms))

@@ -5,12 +5,12 @@ namespace ScreenLogicConnect.Messages
 {
     public class ClientLogin : HLMessage
     {
-        public byte[] m_password;
+        public byte[]? m_password;
         public int m_connectionType;
         public int m_int;
         public int m_procID;
         public int m_schema;
-        public string m_version;
+        public string m_version = "ScreenLogicConnect library";
 
         public const short HLM_CLIENT_LOGIN = 27;
 

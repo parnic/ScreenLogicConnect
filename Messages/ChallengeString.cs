@@ -5,7 +5,7 @@ namespace ScreenLogicConnect.Messages
 {
     public class ChallengeString : HLMessage
     {
-        public string ChallengeStr { get; private set; }
+        public string? ChallengeStr { get; private set; }
 
         public const short HLM_CLIENT_CHALLENGE = 14;
 

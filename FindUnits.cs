@@ -21,7 +21,13 @@ namespace ScreenLogicConnect
         {
             var units = new List<EasyTouchUnit>();
 
-            using (var udpClient = new UdpClient(new IPEndPoint(GetMyIP(), 53112))
+            var myIP = GetMyIP();
+            if (myIP == null)
+            {
+                return units;
+            }
+
+            using (var udpClient = new UdpClient(new IPEndPoint(myIP, 53112))
             {
                 EnableBroadcast = true,
                 MulticastLoopback = false,
@@ -30,7 +36,7 @@ namespace ScreenLogicConnect
                 await udpClient.SendAsync(broadcastData, broadcastData.Length, new IPEndPoint(IPAddress.Broadcast, multicastPort));
 
                 var buf = await udpClient.ReceiveAsync().TimeoutAfter(TimeSpan.FromSeconds(1));
-                if (buf != null && buf.RemoteEndPoint != null)
+                if (buf.RemoteEndPoint != null)
                 {
                     var findServerResponse = new EasyTouchUnit(buf);
                     if (findServerResponse.IsValid)
@@ -43,14 +49,14 @@ namespace ScreenLogicConnect
             return units;
         }
 
-        public static IPAddress GetMyIP()
+        public static IPAddress? GetMyIP()
         {
-            IPAddress localIP;
+            IPAddress? localIP;
             using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
             {
                 socket.Connect("8.8.8.8", 65530);
-                IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
-                localIP = endPoint.Address;
+                var endPoint = socket.LocalEndPoint as IPEndPoint;
+                localIP = endPoint?.Address;
             }
 
             return localIP;

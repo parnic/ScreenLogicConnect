@@ -9,10 +9,15 @@ namespace ScreenLogicConnect
 {
     public class UnitConnection : IDisposable
     {
-        TcpClient client;
+        TcpClient? client;
 
-        public async Task<bool> ConnectTo(EasyTouchUnit unit, string password = null)
+        public async Task<bool> ConnectTo(EasyTouchUnit unit, string? password = null)
         {
+            if (unit?.IPAddress == null)
+            {
+                return false;
+            }
+
             if (client != null)
             {
                 client.Dispose();
@@ -33,6 +38,11 @@ namespace ScreenLogicConnect
             Debug.WriteLine("read {0} bytes (header)", readBytes);
 
             var recvBody = new byte[Messages.HLMessage.ExtractDataSize(recvBuf)];
+            if (recvBody.Length == 0)
+            {
+                return false;
+            }
+
             readBytes = await stream.ReadAsync(recvBody, 0, recvBody.Length);
             Debug.WriteLine("read {0} bytes (body)", readBytes);
             string challengeStr = Messages.HLMessageTypeHelper.ExtractString(recvBody);
@@ -50,28 +60,64 @@ namespace ScreenLogicConnect
             return recvBuf[2] == Messages.ClientLogin.HLM_CLIENT_LOGIN + 1;
         }
 
-        public async Task<Messages.GetPoolStatus> GetPoolStatus()
+        public async Task<Messages.GetPoolStatus?> GetPoolStatus()
         {
+            if (client == null)
+            {
+                return null;
+            }
+
             Debug.WriteLine("sending status message");
             client.GetStream().SendHLMessage(Messages.GetPoolStatus.QUERY(0));
-            return new Messages.GetPoolStatus(await GetMessage(client.GetStream()));
+
+            var msg = await GetMessage(client.GetStream());
+            if (msg == null)
+            {
+                return null;
+            }
+
+            return new Messages.GetPoolStatus(msg);
         }
 
-        public async Task<Messages.GetControllerConfig> GetControllerConfig()
+        public async Task<Messages.GetControllerConfig?> GetControllerConfig()
         {
+            if (client == null)
+            {
+                return null;
+            }
+
             Debug.WriteLine("sending controller config message");
             client.GetStream().SendHLMessage(Messages.GetControllerConfig.QUERY(0));
-            return new Messages.GetControllerConfig(await GetMessage(client.GetStream()));
+
+            var msg = await GetMessage(client.GetStream());
+            if (msg == null)
+            {
+                return null;
+            }
+
+            return new Messages.GetControllerConfig(msg);
         }
 
-        public async Task<Messages.GetMode> GetMode()
+        public async Task<Messages.GetMode?> GetMode()
         {
+            if (client == null)
+            {
+                return null;
+            }
+
             Debug.WriteLine("sending get-mode message");
             client.GetStream().SendHLMessage(Messages.GetMode.QUERY(0));
-            return new Messages.GetMode(await GetMessage(client.GetStream()));
+
+            var msg = await GetMessage(client.GetStream());
+            if (msg == null)
+            {
+                return null;
+            }
+
+            return new Messages.GetMode(msg);
         }
 
-        public static async Task<Messages.HLMessage> GetMessage(NetworkStream ns)
+        public static async Task<Messages.HLMessage?> GetMessage(NetworkStream ns)
         {
             int bytesRead = 0;
             byte[] headerBuffer = new byte[8];

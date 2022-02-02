@@ -7,10 +7,10 @@ namespace ScreenLogicConnect.Messages
     {
         public const int HEADER_SIZE = 8;
 
-        protected byte[] data;
-        protected MemoryStream dataByteStream;
+        protected byte[]? data;
+        protected MemoryStream? dataByteStream;
         protected byte[] header = new byte[HEADER_SIZE];
-        protected MemoryStream headerByteStream;
+        protected MemoryStream? headerByteStream;
         protected int startIndex = 0;
 
         public HLMessage(short sender, short id)
@@ -61,7 +61,7 @@ namespace ScreenLogicConnect.Messages
                 {
                     bw.Write(header, 0, 4);
                     bw.Write(dataLength);
-                    if (dataLength > 0)
+                    if (data != null && dataLength > 0)
                     {
                         bw.Write(data);
                     }
