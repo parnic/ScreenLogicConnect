@@ -43,7 +43,10 @@ namespace ScreenLogicConnect
             readBytes = await stream.ReadAsync(recvBuf, 0, recvBuf.Length);
             Debug.WriteLine("read {0}", readBytes);
             recvBody = new byte[Messages.HLMessage.ExtractDataSize(recvBuf)];
-            await stream.ReadAsync(recvBody, 0, recvBody.Length);
+            if (recvBody.Length > 0)
+            {
+                await stream.ReadAsync(recvBody, 0, recvBody.Length);
+            }
             return recvBuf[2] == Messages.ClientLogin.HLM_CLIENT_LOGIN + 1;
         }
 
