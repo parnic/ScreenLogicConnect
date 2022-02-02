@@ -34,7 +34,7 @@ namespace ScreenLogicConnect
             stream.SendHLMessage(Messages.ChallengeString.QUERY(0));
 
             var recvBuf = new byte[8];
-            var readBytes = await stream.ReadAsync(recvBuf, 0, recvBuf.Length);
+            var readBytes = await stream.ReadAsync(recvBuf);
             Debug.WriteLine("read {0} bytes (header)", readBytes);
 
             var recvBody = new byte[Messages.HLMessage.ExtractDataSize(recvBuf)];
@@ -43,19 +43,19 @@ namespace ScreenLogicConnect
                 return false;
             }
 
-            readBytes = await stream.ReadAsync(recvBody, 0, recvBody.Length);
+            readBytes = await stream.ReadAsync(recvBody);
             Debug.WriteLine("read {0} bytes (body)", readBytes);
             string challengeStr = Messages.HLMessageTypeHelper.ExtractString(recvBody);
 
             Debug.WriteLine("sending login message");
             stream.SendHLMessage(CreateLoginMessage(new HLEncoder(password).GetEncryptedPassword(challengeStr)));
 
-            readBytes = await stream.ReadAsync(recvBuf, 0, recvBuf.Length);
+            readBytes = await stream.ReadAsync(recvBuf);
             Debug.WriteLine("read {0}", readBytes);
             recvBody = new byte[Messages.HLMessage.ExtractDataSize(recvBuf)];
             if (recvBody.Length > 0)
             {
-                await stream.ReadAsync(recvBody, 0, recvBody.Length);
+                await stream.ReadAsync(recvBody);
             }
             return recvBuf[2] == Messages.ClientLogin.HLM_CLIENT_LOGIN + 1;
         }
@@ -125,7 +125,7 @@ namespace ScreenLogicConnect
             {
                 try
                 {
-                    bytesRead += await ns.ReadAsync(headerBuffer, bytesRead, 8 - bytesRead);
+                    bytesRead += await ns.ReadAsync(headerBuffer.AsMemory(bytesRead, 8 - bytesRead));
                     if (bytesRead < 0)
                     {
                         return null;
@@ -144,7 +144,7 @@ namespace ScreenLogicConnect
             bytesRead = 0;
             while (bytesRead < msgDataSize)
             {
-                bytesRead += await ns.ReadAsync(dataBuffer, bytesRead, msgDataSize - bytesRead);
+                bytesRead += await ns.ReadAsync(dataBuffer.AsMemory(bytesRead, msgDataSize - bytesRead));
 
                 if (bytesRead < 0)
                 {
@@ -158,12 +158,12 @@ namespace ScreenLogicConnect
         }
 
         private const string connectionMessage = "CONNECTSERVERHOST\r\n\r\n";
-        private byte[] CreateConnectServerSoftMessage()
+        private static byte[] CreateConnectServerSoftMessage()
         {
             return Encoding.ASCII.GetBytes(connectionMessage);
         }
 
-        private Messages.HLMessage CreateLoginMessage(ReadOnlySpan<byte> encodedPwd)
+        private static Messages.HLMessage CreateLoginMessage(ReadOnlySpan<byte> encodedPwd)
         {
             Messages.ClientLogin login = Messages.ClientLogin.QUERY(0);
             login.m_schema = 348;
@@ -176,7 +176,7 @@ namespace ScreenLogicConnect
                 if (encodedPwd.Length > 16)
                 {
                     login.m_password = new byte[16];
-                    encodedPwd.Slice(0, 16).CopyTo(login.m_password);
+                    encodedPwd[..16].CopyTo(login.m_password);
                 }
                 else
                 {
@@ -194,6 +194,8 @@ namespace ScreenLogicConnect
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
+
             if (client != null)
             {
                 client.Dispose();

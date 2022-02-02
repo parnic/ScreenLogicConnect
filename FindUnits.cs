@@ -15,7 +15,6 @@ namespace ScreenLogicConnect
         };
 
         protected const short multicastPort = 1444;
-        private readonly Socket searchSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
         public static async Task<List<EasyTouchUnit>> Find()
         {
@@ -52,7 +51,7 @@ namespace ScreenLogicConnect
         public static IPAddress? GetMyIP()
         {
             IPAddress? localIP;
-            using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
+            using (Socket socket = new(AddressFamily.InterNetwork, SocketType.Dgram, 0))
             {
                 socket.Connect("8.8.8.8", 65530);
                 var endPoint = socket.LocalEndPoint as IPEndPoint;

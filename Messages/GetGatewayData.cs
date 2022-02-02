@@ -39,16 +39,14 @@ namespace ScreenLogicConnect.Messages
         {
             if (!string.IsNullOrEmpty(GatewayName))
             {
-                using (var ms = new MemoryStream())
+                using var ms = new MemoryStream();
+                using (var bw = new BinaryWriter(ms))
                 {
-                    using (var bw = new BinaryWriter(ms))
-                    {
-                        bw.WritePrefixLength(GatewayName);
-                        bw.WritePrefixLength(GatewayName);
-                    }
-
-                    data = ms.ToArray();
+                    bw.WritePrefixLength(GatewayName);
+                    bw.WritePrefixLength(GatewayName);
                 }
+
+                data = ms.ToArray();
             }
 
             return base.AsByteArray();

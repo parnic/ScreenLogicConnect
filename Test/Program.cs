@@ -75,9 +75,9 @@ namespace Test
                 return;
             }
 
-            var degSymbol = config.m_DegC == 1 ? "C" : "F";
-            Console.WriteLine($"Air temp: {status.m_AirTemp} degrees {degSymbol}");
-            var currTempList = status.m_CurrentTemp;
+            var degSymbol = config.DegC == 1 ? "C" : "F";
+            Console.WriteLine($"Air temp: {status.AirTemp} degrees {degSymbol}");
+            var currTempList = status.CurrentTemp;
             int poolTemp = 0;
             int spaTemp = 0;
             if (currTempList.Length > 0)
@@ -90,7 +90,7 @@ namespace Test
             }
             if (poolTemp != 0)
             {
-                Console.WriteLine($"Pool temp: {poolTemp} degrees {degSymbol}{(status.isPoolActive() ? "" : " (Last)")}");
+                Console.WriteLine($"Pool temp: {poolTemp} degrees {degSymbol}{(status.IsPoolActive() ? "" : " (Last)")}");
             }
             else
             {
@@ -98,16 +98,16 @@ namespace Test
             }
             if (spaTemp != 0)
             {
-                Console.WriteLine($"Spa temp: {spaTemp} degrees {degSymbol}{(status.isSpaActive() ? "" : " (Last)")}");
+                Console.WriteLine($"Spa temp: {spaTemp} degrees {degSymbol}{(status.IsSpaActive() ? "" : " (Last)")}");
             }
             else
             {
                 Console.WriteLine("Couldn't get spa temperature.");
             }
-            Console.WriteLine($"ORP: {status.m_ORP}");
-            Console.WriteLine($"pH: {status.m_PH / 100.0f:0.00}");
-            Console.WriteLine($"Salt: {status.m_SaltPPM * 50} PPM");
-            Console.WriteLine($"Saturation: {status.m_Saturation / 100.0f}");
+            Console.WriteLine($"ORP: {status.ORP}");
+            Console.WriteLine($"pH: {status.PH / 100.0f:0.00}");
+            Console.WriteLine($"Salt: {status.SaltPPM * 50} PPM");
+            Console.WriteLine($"Saturation: {status.Saturation / 100.0f}");
         }
     }
 }

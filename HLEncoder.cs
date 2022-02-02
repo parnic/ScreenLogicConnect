@@ -43,7 +43,7 @@ namespace ScreenLogicConnect
             return null;
         }
 
-        private Span<byte> MakeBlock(string str, byte byFill)
+        private static Span<byte> MakeBlock(string str, byte byFill)
         {
             int iLen = BLOCK_SIZE;
             if (str.Length >= BLOCK_SIZE)
@@ -56,28 +56,6 @@ namespace ScreenLogicConnect
                 if (i < str.Length)
                 {
                     block[i] = (byte)str[i];
-                }
-                else
-                {
-                    block[i] = byFill;
-                }
-            }
-            return block;
-        }
-
-        private Span<byte> MakeBlock(ReadOnlySpan<byte> source, byte byFill)
-        {
-            int iLen = BLOCK_SIZE;
-            if (source.Length >= BLOCK_SIZE)
-            {
-                iLen = source.Length;
-            }
-            var block = new byte[(((iLen / BLOCK_SIZE) + (iLen % BLOCK_SIZE > 0 ? 1 : 0)) * BLOCK_SIZE)];
-            for (int i = 0; i < block.Length; i++)
-            {
-                if (i < source.Length)
-                {
-                    block[i] = source[i];
                 }
                 else
                 {
@@ -101,19 +79,12 @@ namespace ScreenLogicConnect
 
             if (block.Length == 16 || block.Length == 24 || block.Length == 32)
             {
-                switch (block.Length)
+                iROUNDS = block.Length switch
                 {
-                    case 16:
-                        iROUNDS = 10;
-                        break;
-                    case 24:
-                        iROUNDS = 12;
-                        break;
-                    default:
-                        iROUNDS = MAX_ROUNDS;
-                        break;
-                }
-
+                    16 => 10,
+                    24 => 12,
+                    _ => MAX_ROUNDS,
+                };
                 for (int round = 0; round <= iROUNDS; round++)
                 {
                     for (int i = 0; i < 4; i++)
@@ -225,15 +196,6 @@ namespace ScreenLogicConnect
             if (bKeyInit)
             {
                 return EncryptData(MakeBlock(sString, 0));
-            }
-            return null;
-        }
-
-        Span<byte> Encrypt(ReadOnlySpan<byte> source)
-        {
-            if (bKeyInit)
-            {
-                return EncryptData(MakeBlock(source, 0));
             }
             return null;
         }

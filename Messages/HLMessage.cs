@@ -16,14 +16,12 @@ namespace ScreenLogicConnect.Messages
         public HLMessage(short sender, short id)
         {
             headerByteStream = new MemoryStream(header);
-            using (var mw = new BinaryWriter(headerByteStream))
+            using var mw = new BinaryWriter(headerByteStream);
+            mw.Write(sender);
+            mw.Write(id);
+            while (headerByteStream.Position < headerByteStream.Length)
             {
-                mw.Write(sender);
-                mw.Write(id);
-                while (headerByteStream.Position < headerByteStream.Length)
-                {
-                    mw.Write((byte)0xff);
-                }
+                mw.Write((byte)0xff);
             }
         }
 
@@ -47,7 +45,7 @@ namespace ScreenLogicConnect.Messages
         }
 
         public HLMessage(HLMessage msg)
-            : this(msg != null ? msg.header : null, msg != null ? msg.data : null)
+            : this(msg?.header, msg?.data)
         {
         }
 
@@ -57,14 +55,12 @@ namespace ScreenLogicConnect.Messages
             var result = new byte[dataLength + header.Length];
             using (var ms = new MemoryStream(result))
             {
-                using (var bw = new BinaryWriter(ms))
+                using var bw = new BinaryWriter(ms);
+                bw.Write(header, 0, 4);
+                bw.Write(dataLength);
+                if (data != null && dataLength > 0)
                 {
-                    bw.Write(header, 0, 4);
-                    bw.Write(dataLength);
-                    if (data != null && dataLength > 0)
-                    {
-                        bw.Write(data);
-                    }
+                    bw.Write(data);
                 }
             }
 
@@ -73,7 +69,7 @@ namespace ScreenLogicConnect.Messages
 
         public static int ExtractDataSize(ReadOnlySpan<byte> buf)
         {
-            return BitConverter.ToInt32(buf.Slice(4));
+            return BitConverter.ToInt32(buf[4..]);
         }
 
         public short GetMessageID()

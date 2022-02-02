@@ -6,28 +6,28 @@ namespace ScreenLogicConnect.Messages
 {
     public class GetPoolStatus : HLMessage
     {
-        public CircuitUpdateDataStructure[]? circuitArray { get; private set; }
-        public int m_AirTemp { get; private set; }
-        public int m_Alarms { get; private set; }
-        public int m_BodiesCount { get; private set; }
-        public int m_CircuitCount { get; private set; }
-        public byte m_CleanerDelay { get; private set; }
-        public int[] m_CoolSetPoint { get; private set; } = new int[2];
-        public int[] m_CurrentTemp { get; private set; } = new int[2];
-        public byte m_FreezeMode { get; private set; }
-        public int[] m_HeatMode { get; private set; } = new int[2];
-        public int[] m_HeatStatus { get; private set; } = new int[2];
-        public int m_ORP { get; private set; }
-        public int m_ORPTank { get; private set; }
-        public int m_Ok { get; private set; }
-        public int m_PH { get; private set; }
-        public int m_PHTank { get; private set; }
-        public byte m_PoolDelay { get; private set; }
-        public byte m_Remotes { get; private set; }
-        public int m_SaltPPM { get; private set; }
-        public int m_Saturation { get; private set; }
-        public int[] m_SetPoint { get; private set; } = new int[2];
-        public byte m_SpaDelay { get; private set; }
+        public CircuitUpdateDataStructure[]? CircuitArray { get; private set; }
+        public int AirTemp { get; private set; }
+        public int Alarms { get; private set; }
+        public int BodiesCount { get; private set; }
+        public int CircuitCount { get; private set; }
+        public byte CleanerDelay { get; private set; }
+        public int[] CoolSetPoint { get; private set; } = new int[2];
+        public int[] CurrentTemp { get; private set; } = new int[2];
+        public byte FreezeMode { get; private set; }
+        public int[] HeatMode { get; private set; } = new int[2];
+        public int[] HeatStatus { get; private set; } = new int[2];
+        public int ORP { get; private set; }
+        public int ORPTank { get; private set; }
+        public int Ok { get; private set; }
+        public int PH { get; private set; }
+        public int PHTank { get; private set; }
+        public byte PoolDelay { get; private set; }
+        public byte Remotes { get; private set; }
+        public int SaltPPM { get; private set; }
+        public int Saturation { get; private set; }
+        public int[] SetPoint { get; private set; } = new int[2];
+        public byte SpaDelay { get; private set; }
 
         public const short HLM_POOL_GETSTATUSQ = 12526;
 
@@ -73,84 +73,80 @@ namespace ScreenLogicConnect.Messages
                 return;
             }
 
-            using (var ms = new MemoryStream(data))
+            using var ms = new MemoryStream(data);
+            using var br = new BinaryReader(ms);
+            Ok = br.ReadInt32();
+            FreezeMode = br.ReadByte();
+            Remotes = br.ReadByte();
+            PoolDelay = br.ReadByte();
+            SpaDelay = br.ReadByte();
+            CleanerDelay = br.ReadByte();
+            br.ReadBytes(3);
+            AirTemp = br.ReadInt32();
+            BodiesCount = br.ReadInt32();
+            if (BodiesCount > 2)
             {
-                using (var br = new BinaryReader(ms))
-                {
-                    m_Ok = br.ReadInt32();
-                    m_FreezeMode = br.ReadByte();
-                    m_Remotes = br.ReadByte();
-                    m_PoolDelay = br.ReadByte();
-                    m_SpaDelay = br.ReadByte();
-                    m_CleanerDelay = br.ReadByte();
-                    br.ReadBytes(3);
-                    m_AirTemp = br.ReadInt32();
-                    m_BodiesCount = br.ReadInt32();
-                    if (m_BodiesCount > 2)
-                    {
-                        m_BodiesCount = 2; // todo: what? this is how the android app is handling this, but it seems weird.
-                    }
-                    for (int i = 0; i < m_BodiesCount; i++)
-                    {
-                        var bodyType = br.ReadInt32();
-                        if (bodyType < 0 || bodyType >= 2)
-                        {
-                            bodyType = 0;
-                        }
-                        m_CurrentTemp[bodyType] = br.ReadInt32();
-                        m_HeatStatus[bodyType] = br.ReadInt32();
-                        m_SetPoint[bodyType] = br.ReadInt32();
-                        m_CoolSetPoint[bodyType] = br.ReadInt32();
-                        m_HeatMode[bodyType] = br.ReadInt32();
-                    }
-                    m_CircuitCount = br.ReadInt32();
-                    circuitArray = new CircuitUpdateDataStructure[m_CircuitCount];
-                    for (int i = 0; i < m_CircuitCount; i++)
-                    {
-                        circuitArray[i] = new CircuitUpdateDataStructure()
-                        {
-                            id = br.ReadInt32(),
-                            state = br.ReadInt32(),
-                            colorSet = br.ReadByte(),
-                            colorPos = br.ReadByte(),
-                            colorStagger = br.ReadByte(),
-                            delay = br.ReadByte(),
-                        };
-                    }
-                    m_PH = br.ReadInt32();
-                    m_ORP = br.ReadInt32();
-                    m_Saturation = br.ReadInt32();
-                    m_SaltPPM = br.ReadInt32();
-                    m_PHTank = br.ReadInt32();
-                    m_ORPTank = br.ReadInt32();
-                    m_Alarms = br.ReadInt32();
-                }
+                BodiesCount = 2; // todo: what? this is how the android app is handling this, but it seems weird.
             }
+            for (int i = 0; i < BodiesCount; i++)
+            {
+                var bodyType = br.ReadInt32();
+                if (bodyType < 0 || bodyType >= 2)
+                {
+                    bodyType = 0;
+                }
+                CurrentTemp[bodyType] = br.ReadInt32();
+                HeatStatus[bodyType] = br.ReadInt32();
+                SetPoint[bodyType] = br.ReadInt32();
+                CoolSetPoint[bodyType] = br.ReadInt32();
+                HeatMode[bodyType] = br.ReadInt32();
+            }
+            CircuitCount = br.ReadInt32();
+            CircuitArray = new CircuitUpdateDataStructure[CircuitCount];
+            for (int i = 0; i < CircuitCount; i++)
+            {
+                CircuitArray[i] = new CircuitUpdateDataStructure()
+                {
+                    id = br.ReadInt32(),
+                    state = br.ReadInt32(),
+                    colorSet = br.ReadByte(),
+                    colorPos = br.ReadByte(),
+                    colorStagger = br.ReadByte(),
+                    delay = br.ReadByte(),
+                };
+            }
+            PH = br.ReadInt32();
+            ORP = br.ReadInt32();
+            Saturation = br.ReadInt32();
+            SaltPPM = br.ReadInt32();
+            PHTank = br.ReadInt32();
+            ORPTank = br.ReadInt32();
+            Alarms = br.ReadInt32();
         }
 
-        public bool isDeviceready()
+        public bool IsDeviceready()
         {
-            return m_Ok == 1;
+            return Ok == 1;
         }
 
-        public bool isDeviceSync()
+        public bool IsDeviceSync()
         {
-            return m_Ok == 2;
+            return Ok == 2;
         }
 
-        public bool isDeviceServiceMode()
+        public bool IsDeviceServiceMode()
         {
-            return m_Ok == 3;
+            return Ok == 3;
         }
 
-        public bool isSpaActive()
+        public bool IsSpaActive()
         {
-            return circuitArray?.Any(x => x.id == CircuitUpdateDataStructure.SPA_CIRCUIT_ID && x.state == 1) ?? false;
+            return CircuitArray?.Any(x => x.id == CircuitUpdateDataStructure.SPA_CIRCUIT_ID && x.state == 1) ?? false;
         }
 
-        public bool isPoolActive()
+        public bool IsPoolActive()
         {
-            return circuitArray?.Any(x => x.id == CircuitUpdateDataStructure.POOL_CIRCUIT_ID && x.state == 1) ?? false;
+            return CircuitArray?.Any(x => x.id == CircuitUpdateDataStructure.POOL_CIRCUIT_ID && x.state == 1) ?? false;
         }
     }
 }
